@@ -1,15 +1,19 @@
 import type Span from "@/core/span";
 
-export type Expression =
-  | NumberExpression
-  | BooleanExpression
-  | BinaryExpression;
-
 export enum ExpressionType {
   Number = "number",
   Boolean = "boolean",
+  Identifier = "identifier",
+  Assignment = "assignment",
   Binary = "binary",
 }
+
+export type Expression =
+  | NumberExpression
+  | BooleanExpression
+  | IdentifierExpression
+  | AssignmentExpression
+  | BinaryExpression;
 
 export interface NumberExpression {
   readonly type: ExpressionType.Number;
@@ -32,6 +36,34 @@ export function booleanExpression(
   span: Span
 ): BooleanExpression {
   return { type: ExpressionType.Boolean, value, span };
+}
+
+export interface IdentifierExpression {
+  readonly type: ExpressionType.Identifier;
+  readonly name: string;
+  readonly span: Span;
+}
+
+export function identifierExpression(
+  name: string,
+  span: Span
+): IdentifierExpression {
+  return { type: ExpressionType.Identifier, name, span };
+}
+
+export interface AssignmentExpression {
+  readonly type: ExpressionType.Assignment;
+  readonly left: IdentifierExpression;
+  readonly right: Expression;
+  readonly span: Span;
+}
+
+export function assignmentExpression(
+  left: IdentifierExpression,
+  right: Expression,
+  span: Span
+): AssignmentExpression {
+  return { type: ExpressionType.Assignment, left, right, span };
 }
 
 export enum BinaryOperator {

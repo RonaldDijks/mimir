@@ -47,3 +47,14 @@ test("tokenizes boolean expressions", () => {
     { type: TokenType.Eof, span: { start: 21, end: 22 } },
   ]);
 });
+
+test("tokenizes identifiers", () => {
+  const tokenizer = new Tokenizer("x = 123");
+  const tokens = tokenizer.tokenize();
+  expect(tokens).toEqual([
+    { type: TokenType.Identifier, name: "x", span: { start: 0, end: 1 } },
+    { type: TokenType.Equal, span: { start: 2, end: 3 } },
+    { type: TokenType.Number, value: 123, span: { start: 4, end: 7 } },
+    { type: TokenType.Eof, span: { start: 7, end: 8 } },
+  ]);
+});

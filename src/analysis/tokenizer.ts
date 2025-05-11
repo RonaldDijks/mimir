@@ -47,6 +47,9 @@ export class Tokenizer {
       case "/":
         this.index++;
         return { type: TokenType.Slash, span: this.getSpan() };
+      case "=":
+        this.index++;
+        return { type: TokenType.Equal, span: this.getSpan() };
       case "&":
         if (this.peek(1) === "&") {
           this.index += 2;
@@ -91,11 +94,11 @@ export class Tokenizer {
     }
     const span = this.getSpan();
     const text = this.source.slice(span);
-    const type = fromKeyword(text);
-    if (type) {
-      return { type, span };
+    const type = tokenizeIdentifier(text);
+    if (type === TokenType.Identifier) {
+      return { type, name: text, span };
     } else {
-      return { type: TokenType.Unknown, span };
+      return { type, span };
     }
   }
 
@@ -128,15 +131,15 @@ export class Tokenizer {
   }
 }
 
-function fromKeyword(
+function tokenizeIdentifier(
   text: string
-): TokenType.True | TokenType.False | undefined {
+): TokenType.True | TokenType.False | TokenType.Identifier {
   switch (text) {
     case "true":
       return TokenType.True;
     case "false":
       return TokenType.False;
     default:
-      return undefined;
+      return TokenType.Identifier;
   }
 }

@@ -5,6 +5,8 @@ import {
   type BooleanExpression,
   type Expression,
   type NumberExpression,
+  type IdentifierExpression,
+  type AssignmentExpression,
 } from "@/analysis/ast";
 import {
   booleanValue,
@@ -23,7 +25,15 @@ export class UnknownOperatorError extends Error {
   }
 }
 
+export class UndefinedVariableError extends Error {
+  public constructor(public readonly name: string) {
+    super(`Variable '${name}' is not defined`);
+  }
+}
+
 export class VirtualMachine {
+  private environment = new Map<string, Value>();
+
   public run(expression: Expression): Value {
     return this.expression(expression);
   }
@@ -36,6 +46,10 @@ export class VirtualMachine {
         return this.numberExpression(expression);
       case ExpressionType.Boolean:
         return this.booleanExpression(expression);
+      case ExpressionType.Identifier:
+        return this.identifierExpression(expression);
+      case ExpressionType.Assignment:
+        return this.assignmentExpression(expression);
     }
   }
 
@@ -74,5 +88,19 @@ export class VirtualMachine {
 
   private booleanExpression(expression: BooleanExpression): Value {
     return booleanValue(expression.value);
+  }
+
+  private identifierExpression(expression: IdentifierExpression): Value {
+    const value = this.environment.get(expression.name);
+    if (value === undefined) {
+      throw new UndefinedVariableError(expression.name);
+    }
+    return value;
+  }
+
+  private assignmentExpression(expression: AssignmentExpression): Value {
+    const value = this.expression(expression.right);
+    this.environment.set(expression.left.name, value);
+    return value;
   }
 }

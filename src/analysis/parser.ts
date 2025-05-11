@@ -3,8 +3,11 @@ import {
   binaryExpression,
   BinaryOperator,
   booleanExpression,
+  identifierExpression,
   numberExpression,
+  assignmentExpression,
   type Expression,
+  type IdentifierExpression,
 } from "@/analysis/ast";
 import { merge } from "@/core/span";
 
@@ -72,7 +75,33 @@ export class Parser {
   }
 
   private expression(): Expression {
-    return this.binaryExpression();
+    return this.assignmentExpression();
+  }
+
+  private assignmentExpression(): Expression {
+    const left = this.binaryExpression();
+
+    // Check if the next token is an equals sign
+    if (this.peek().type === TokenType.Equal) {
+      // Only identifiers can be on the left side of an assignment
+      if (left.type !== "identifier") {
+        throw new Error("Left side of assignment must be an identifier");
+      }
+
+      // Consume the equals token
+      const equalToken = this.consume();
+
+      // Parse the right side of the assignment
+      const right = this.assignmentExpression();
+
+      // Create span covering the entire assignment expression
+      const span = merge(left.span, right.span);
+
+      // Return the assignment expression
+      return assignmentExpression(left as IdentifierExpression, right, span);
+    }
+
+    return left;
   }
 
   private binaryExpression(
@@ -104,6 +133,8 @@ export class Parser {
       return booleanExpression(true, token.span);
     } else if (token.type === TokenType.False) {
       return booleanExpression(false, token.span);
+    } else if (token.type === TokenType.Identifier) {
+      return identifierExpression(token.name, token.span);
     } else {
       throw new Error(`Unexpected token: ${token.type}`);
     }

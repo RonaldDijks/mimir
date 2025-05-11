@@ -1,8 +1,10 @@
 import {
   BinaryOperator,
   ExpressionType,
+  assignmentExpression,
   binaryExpression,
   booleanExpression,
+  identifierExpression,
   numberExpression,
 } from "@/analysis/ast";
 import { Parser } from "@/analysis/parser";
@@ -56,3 +58,17 @@ test("parses a boolean expression", () => {
     )
   );
 });
+
+test("parses an identifier expression", () => {
+  const parser = new Parser(new Tokenizer("x = 123").tokenize());
+  const ast = parser.parse();
+  expect(ast).toEqual(
+    assignmentExpression(
+      identifierExpression("x", { start: 0, end: 1 }),
+      numberExpression(123, { start: 4, end: 7 }),
+      { start: 0, end: 7 }
+    )
+  );
+});
+
+test("parses a binary expression", () => {});

@@ -9,9 +9,11 @@ export const enum TokenType {
   Slash = "slash",
   AmpersandAmpersand = "ampersand_ampersand",
   PipePipe = "pipe_pipe",
+  Equal = "equal",
 
   True = "true",
   False = "false",
+  Identifier = "identifier",
 
   Unknown = "unknown",
   Eof = "eof",
@@ -25,8 +27,10 @@ export type Token =
   | SlashToken
   | AmpersandAmpersandToken
   | PipePipeToken
+  | EqualToken
   | TrueToken
   | FalseToken
+  | IdentifierToken
   | UnknownToken
   | EofToken;
 
@@ -66,6 +70,11 @@ export interface PipePipeToken {
   span: Span;
 }
 
+export interface EqualToken {
+  type: TokenType.Equal;
+  span: Span;
+}
+
 export interface TrueToken {
   type: TokenType.True;
   span: Span;
@@ -73,6 +82,12 @@ export interface TrueToken {
 
 export interface FalseToken {
   type: TokenType.False;
+  span: Span;
+}
+
+export interface IdentifierToken {
+  type: TokenType.Identifier;
+  name: string;
   span: Span;
 }
 
