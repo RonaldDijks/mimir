@@ -58,3 +58,15 @@ test("tokenizes identifiers", () => {
     { type: TokenType.Eof, span: { start: 7, end: 8 } },
   ]);
 });
+
+test("tokenizes semicolons", () => {
+  const tokenizer = new Tokenizer("123 + 456;");
+  const tokens = tokenizer.tokenize();
+  expect(tokens).toEqual([
+    { type: TokenType.Number, value: 123, span: { start: 0, end: 3 } },
+    { type: TokenType.Plus, span: { start: 4, end: 5 } },
+    { type: TokenType.Number, value: 456, span: { start: 6, end: 9 } },
+    { type: TokenType.Semicolon, span: { start: 9, end: 10 } },
+    { type: TokenType.Eof, span: { start: 10, end: 11 } },
+  ]);
+});

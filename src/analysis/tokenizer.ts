@@ -50,6 +50,9 @@ export class Tokenizer {
       case "=":
         this.index++;
         return { type: TokenType.Equal, span: this.getSpan() };
+      case ";":
+        this.index++;
+        return { type: TokenType.Semicolon, span: this.getSpan() };
       case "&":
         if (this.peek(1) === "&") {
           this.index += 2;

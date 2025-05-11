@@ -70,8 +70,30 @@ export class Parser {
     return token;
   }
 
+  private match(type: TokenType): boolean {
+    if (this.peek().type === type) {
+      this.consume();
+      return true;
+    }
+    return false;
+  }
+
+  private expectSemicolon(): void {
+    if (!this.match(TokenType.Semicolon)) {
+      throw new Error("Expected semicolon after expression");
+    }
+  }
+
   public parse(): Expression {
-    return this.expression();
+    const expr = this.expression();
+    this.expectSemicolon();
+
+    // Make sure we've reached the end of the input
+    if (this.peek().type !== TokenType.Eof) {
+      throw new Error("Unexpected tokens after expression");
+    }
+
+    return expr;
   }
 
   private expression(): Expression {

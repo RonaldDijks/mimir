@@ -10,6 +10,7 @@ export const enum TokenType {
   AmpersandAmpersand = "ampersand_ampersand",
   PipePipe = "pipe_pipe",
   Equal = "equal",
+  Semicolon = "semicolon",
 
   True = "true",
   False = "false",
@@ -28,6 +29,7 @@ export type Token =
   | AmpersandAmpersandToken
   | PipePipeToken
   | EqualToken
+  | SemicolonToken
   | TrueToken
   | FalseToken
   | IdentifierToken
@@ -72,6 +74,11 @@ export interface PipePipeToken {
 
 export interface EqualToken {
   type: TokenType.Equal;
+  span: Span;
+}
+
+export interface SemicolonToken {
+  type: TokenType.Semicolon;
   span: Span;
 }
 

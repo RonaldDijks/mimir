@@ -12,7 +12,7 @@ import { Tokenizer } from "@/analysis/tokenizer";
 import { test, expect } from "bun:test";
 
 test("parses simple expressions", () => {
-  const parser = new Parser(new Tokenizer("1 + 2").tokenize());
+  const parser = new Parser(new Tokenizer("1 + 2;").tokenize());
   const ast = parser.parse();
   expect(ast).toEqual({
     type: ExpressionType.Binary,
@@ -24,7 +24,7 @@ test("parses simple expressions", () => {
 });
 
 test("parses a binary expression with a higher precedence", () => {
-  const parser = new Parser(new Tokenizer("1 + 2 * 3").tokenize());
+  const parser = new Parser(new Tokenizer("1 + 2 * 3;").tokenize());
   const ast = parser.parse();
   expect(ast).toEqual(
     binaryExpression(
@@ -42,7 +42,7 @@ test("parses a binary expression with a higher precedence", () => {
 });
 
 test("parses a boolean expression", () => {
-  const parser = new Parser(new Tokenizer("true && false || true").tokenize());
+  const parser = new Parser(new Tokenizer("true && false || true;").tokenize());
   const ast = parser.parse();
   expect(ast).toEqual(
     binaryExpression(
@@ -60,7 +60,7 @@ test("parses a boolean expression", () => {
 });
 
 test("parses an identifier expression", () => {
-  const parser = new Parser(new Tokenizer("x = 123").tokenize());
+  const parser = new Parser(new Tokenizer("x = 123;").tokenize());
   const ast = parser.parse();
   expect(ast).toEqual(
     assignmentExpression(
@@ -71,4 +71,12 @@ test("parses an identifier expression", () => {
   );
 });
 
-test("parses a binary expression", () => {});
+test("throws error for missing semicolon", () => {
+  const parser = new Parser(new Tokenizer("1 + 2").tokenize());
+  expect(() => parser.parse()).toThrow("Expected semicolon after expression");
+});
+
+test("throws error for multiple expressions without semicolons", () => {
+  const parser = new Parser(new Tokenizer("1 + 2; 3 + 4").tokenize());
+  expect(() => parser.parse()).toThrow("Unexpected tokens after expression");
+});
