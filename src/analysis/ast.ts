@@ -1,9 +1,13 @@
 import type Span from "@/core/span";
 
-export type Expression = NumberExpression | BinaryExpression;
+export type Expression =
+  | NumberExpression
+  | BooleanExpression
+  | BinaryExpression;
 
 export enum ExpressionType {
   Number = "number",
+  Boolean = "boolean",
   Binary = "binary",
 }
 
@@ -17,11 +21,26 @@ export function numberExpression(value: number, span: Span): NumberExpression {
   return { type: ExpressionType.Number, value, span };
 }
 
+export interface BooleanExpression {
+  readonly type: ExpressionType.Boolean;
+  readonly value: boolean;
+  readonly span: Span;
+}
+
+export function booleanExpression(
+  value: boolean,
+  span: Span
+): BooleanExpression {
+  return { type: ExpressionType.Boolean, value, span };
+}
+
 export enum BinaryOperator {
-  Plus = "+",
-  Minus = "-",
-  Asterisk = "*",
-  Slash = "/",
+  Addition = "+",
+  Subtraction = "-",
+  Multiplication = "*",
+  Division = "/",
+  LogicalAnd = "&&",
+  LogicalOr = "||",
 }
 
 export interface BinaryExpression {

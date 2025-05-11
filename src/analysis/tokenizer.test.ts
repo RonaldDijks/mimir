@@ -1,5 +1,6 @@
-import { Tokenizer, TokenType } from "@/analysis/tokenizer";
+import { Tokenizer } from "@/analysis/tokenizer";
 import { test, expect } from "bun:test";
+import { TokenType } from "./token";
 
 test("tokenizes unknown characters", () => {
   const tokenizer = new Tokenizer("%%%");
@@ -31,5 +32,18 @@ test("tokenizes more complex expressions", () => {
     { type: TokenType.Asterisk, span: { start: 10, end: 11 } },
     { type: TokenType.Number, value: 789, span: { start: 12, end: 15 } },
     { type: TokenType.Eof, span: { start: 15, end: 16 } },
+  ]);
+});
+
+test("tokenizes boolean expressions", () => {
+  const tokenizer = new Tokenizer("true && false || true");
+  const tokens = tokenizer.tokenize();
+  expect(tokens).toEqual([
+    { type: TokenType.True, span: { start: 0, end: 4 } },
+    { type: TokenType.AmpersandAmpersand, span: { start: 5, end: 7 } },
+    { type: TokenType.False, span: { start: 8, end: 13 } },
+    { type: TokenType.PipePipe, span: { start: 14, end: 16 } },
+    { type: TokenType.True, span: { start: 17, end: 21 } },
+    { type: TokenType.Eof, span: { start: 21, end: 22 } },
   ]);
 });

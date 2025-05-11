@@ -1,7 +1,8 @@
-import { TokenType, type Token } from "@/analysis/tokenizer";
+import { TokenType, type Token } from "@/analysis/token";
 import {
   binaryExpression,
   BinaryOperator,
+  booleanExpression,
   numberExpression,
   type Expression,
 } from "@/analysis/ast";
@@ -10,29 +11,39 @@ import { merge } from "@/core/span";
 function tokenToOperator(token: Token): BinaryOperator | undefined {
   switch (token.type) {
     case TokenType.Plus:
-      return BinaryOperator.Plus;
+      return BinaryOperator.Addition;
     case TokenType.Minus:
-      return BinaryOperator.Minus;
+      return BinaryOperator.Subtraction;
     case TokenType.Asterisk:
-      return BinaryOperator.Asterisk;
+      return BinaryOperator.Multiplication;
     case TokenType.Slash:
-      return BinaryOperator.Slash;
+      return BinaryOperator.Division;
+    case TokenType.AmpersandAmpersand:
+      return BinaryOperator.LogicalAnd;
+    case TokenType.PipePipe:
+      return BinaryOperator.LogicalOr;
+    default:
+      return undefined;
   }
 }
 enum Precedence {
   Lowest = 0,
   Additive = 1,
   Multiplicative = 2,
+  Logical = 3,
 }
 
 function precedence(operator: BinaryOperator): Precedence {
   switch (operator) {
-    case BinaryOperator.Plus:
-    case BinaryOperator.Minus:
+    case BinaryOperator.Addition:
+    case BinaryOperator.Subtraction:
       return Precedence.Additive;
-    case BinaryOperator.Asterisk:
-    case BinaryOperator.Slash:
+    case BinaryOperator.Multiplication:
+    case BinaryOperator.Division:
       return Precedence.Multiplicative;
+    case BinaryOperator.LogicalAnd:
+    case BinaryOperator.LogicalOr:
+      return Precedence.Logical;
     default:
       return Precedence.Lowest;
   }
@@ -89,6 +100,10 @@ export class Parser {
     const token = this.consume();
     if (token.type === TokenType.Number) {
       return numberExpression(token.value, token.span);
+    } else if (token.type === TokenType.True) {
+      return booleanExpression(true, token.span);
+    } else if (token.type === TokenType.False) {
+      return booleanExpression(false, token.span);
     } else {
       throw new Error(`Unexpected token: ${token.type}`);
     }

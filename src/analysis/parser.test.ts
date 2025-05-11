@@ -2,6 +2,7 @@ import {
   BinaryOperator,
   ExpressionType,
   binaryExpression,
+  booleanExpression,
   numberExpression,
 } from "@/analysis/ast";
 import { Parser } from "@/analysis/parser";
@@ -13,7 +14,7 @@ test("parses simple expressions", () => {
   const ast = parser.parse();
   expect(ast).toEqual({
     type: ExpressionType.Binary,
-    operator: BinaryOperator.Plus,
+    operator: BinaryOperator.Addition,
     left: numberExpression(1, { start: 0, end: 1 }),
     right: numberExpression(2, { start: 4, end: 5 }),
     span: { start: 0, end: 5 },
@@ -26,14 +27,32 @@ test("parses a binary expression with a higher precedence", () => {
   expect(ast).toEqual(
     binaryExpression(
       numberExpression(1, { start: 0, end: 1 }),
-      BinaryOperator.Plus,
+      BinaryOperator.Addition,
       binaryExpression(
         numberExpression(2, { start: 4, end: 5 }),
-        BinaryOperator.Asterisk,
+        BinaryOperator.Multiplication,
         numberExpression(3, { start: 8, end: 9 }),
         { start: 4, end: 9 }
       ),
       { start: 0, end: 9 }
+    )
+  );
+});
+
+test("parses a boolean expression", () => {
+  const parser = new Parser(new Tokenizer("true && false || true").tokenize());
+  const ast = parser.parse();
+  expect(ast).toEqual(
+    binaryExpression(
+      binaryExpression(
+        booleanExpression(true, { start: 0, end: 4 }),
+        BinaryOperator.LogicalAnd,
+        booleanExpression(false, { start: 8, end: 13 }),
+        { start: 0, end: 13 }
+      ),
+      BinaryOperator.LogicalOr,
+      booleanExpression(true, { start: 17, end: 21 }),
+      { start: 0, end: 21 }
     )
   );
 });

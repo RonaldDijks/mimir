@@ -2,10 +2,26 @@ import {
   BinaryOperator,
   ExpressionType,
   type BinaryExpression,
+  type BooleanExpression,
   type Expression,
   type NumberExpression,
 } from "@/analysis/ast";
-import type { Value } from "@/execution/value";
+import {
+  booleanValue,
+  numberValue,
+  ValueType,
+  type Value,
+} from "@/execution/value";
+
+export class UnknownOperatorError extends Error {
+  public constructor(
+    public readonly operator: BinaryOperator,
+    public readonly left: ValueType,
+    public readonly right: ValueType
+  ) {
+    super(`Unknown binary operator ${operator} for '${left}' and '${right}'`);
+  }
+}
 
 export class VirtualMachine {
   public run(expression: Expression): Value {
@@ -18,27 +34,45 @@ export class VirtualMachine {
         return this.binaryExpression(expression);
       case ExpressionType.Number:
         return this.numberExpression(expression);
+      case ExpressionType.Boolean:
+        return this.booleanExpression(expression);
     }
   }
 
   private binaryExpression(expression: BinaryExpression): Value {
     const left = this.expression(expression.left);
     const right = this.expression(expression.right);
-    switch (expression.operator) {
-      case BinaryOperator.Plus:
-        return { value: left.value + right.value };
-      case BinaryOperator.Minus:
-        return { value: left.value - right.value };
-      case BinaryOperator.Asterisk:
-        return { value: left.value * right.value };
-      case BinaryOperator.Slash:
-        return { value: left.value / right.value };
-      default:
-        throw new Error(`Unknown binary operator: ${expression.operator}`);
+
+    if (left.type === ValueType.Number && right.type === ValueType.Number) {
+      switch (expression.operator) {
+        case BinaryOperator.Addition:
+          return numberValue(left.value + right.value);
+        case BinaryOperator.Subtraction:
+          return numberValue(left.value - right.value);
+        case BinaryOperator.Multiplication:
+          return numberValue(left.value * right.value);
+        case BinaryOperator.Division:
+          return numberValue(left.value / right.value);
+      }
     }
+
+    if (left.type === ValueType.Boolean && right.type === ValueType.Boolean) {
+      switch (expression.operator) {
+        case BinaryOperator.LogicalAnd:
+          return booleanValue(left.value && right.value);
+        case BinaryOperator.LogicalOr:
+          return booleanValue(left.value || right.value);
+      }
+    }
+
+    throw new UnknownOperatorError(expression.operator, left.type, right.type);
   }
 
   private numberExpression(expression: NumberExpression): Value {
-    return { value: expression.value };
+    return numberValue(expression.value);
+  }
+
+  private booleanExpression(expression: BooleanExpression): Value {
+    return booleanValue(expression.value);
   }
 }

@@ -1,6 +1,9 @@
 import { expect, test } from "bun:test";
-import { VirtualMachine } from "@/execution/virtual-machine";
-import { numberValue } from "./value";
+import {
+  UnknownOperatorError,
+  VirtualMachine,
+} from "@/execution/virtual-machine";
+import { booleanValue, numberValue } from "./value";
 import { Tokenizer } from "@/analysis/tokenizer";
 import { Parser } from "@/analysis/parser";
 import type { Expression } from "@/analysis/ast";
@@ -31,4 +34,17 @@ test("evaluates expressions with precedence", () => {
   const vm = new VirtualMachine();
   const result = vm.run(ast);
   expect(result).toEqual(numberValue(5));
+});
+
+test("evaluates boolean expressions", () => {
+  const ast = getAst("true && false || true");
+  const vm = new VirtualMachine();
+  const result = vm.run(ast);
+  expect(result).toEqual(booleanValue(true));
+});
+
+test("rejects unknown expressions", () => {
+  const ast = getAst("1 + true");
+  const vm = new VirtualMachine();
+  expect(() => vm.run(ast)).toThrow(UnknownOperatorError);
 });

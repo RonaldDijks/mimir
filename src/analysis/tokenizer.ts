@@ -1,63 +1,7 @@
-import { isNumeric, isWhitespace } from "@/core/char";
+import { isAlpha, isNumeric, isWhitespace } from "@/core/char";
 import { Source } from "@/core/source";
 import type Span from "@/core/span";
-
-export const enum TokenType {
-  Number = "number",
-
-  Plus = "plus",
-  Minus = "minus",
-  Asterisk = "asterisk",
-  Slash = "slash",
-
-  Unknown = "unknown",
-  Eof = "eof",
-}
-
-export type Token =
-  | NumberToken
-  | PlusToken
-  | MinusToken
-  | AsteriskToken
-  | SlashToken
-  | UnknownToken
-  | EofToken;
-
-export interface NumberToken {
-  type: TokenType.Number;
-  value: number;
-  span: Span;
-}
-
-export interface PlusToken {
-  type: TokenType.Plus;
-  span: Span;
-}
-
-export interface MinusToken {
-  type: TokenType.Minus;
-  span: Span;
-}
-
-export interface AsteriskToken {
-  type: TokenType.Asterisk;
-  span: Span;
-}
-
-export interface SlashToken {
-  type: TokenType.Slash;
-  span: Span;
-}
-
-export interface UnknownToken {
-  type: TokenType.Unknown;
-  span: Span;
-}
-
-export interface EofToken {
-  type: TokenType.Eof;
-  span: Span;
-}
+import { TokenType, type Token } from "./token";
 
 export class Tokenizer {
   /** The source of the input. */
@@ -86,7 +30,7 @@ export class Tokenizer {
   public next(): Token {
     this.skipWhitespace();
     this.start = this.index;
-    const c = this.current();
+    const c = this.peek();
     switch (c) {
       case "\0":
         this.index++;
@@ -103,18 +47,34 @@ export class Tokenizer {
       case "/":
         this.index++;
         return { type: TokenType.Slash, span: this.getSpan() };
+      case "&":
+        if (this.peek(1) === "&") {
+          this.index += 2;
+          return { type: TokenType.AmpersandAmpersand, span: this.getSpan() };
+        }
+        break;
+      case "|":
+        if (this.peek(1) === "|") {
+          this.index += 2;
+          return { type: TokenType.PipePipe, span: this.getSpan() };
+        }
+        break;
       default:
         if (isNumeric(c)) {
           return this.number();
         }
 
-        this.skipUnknown();
-        return { type: TokenType.Unknown, span: this.getSpan() };
+        if (isAlpha(c) || c === "_") {
+          return this.identifier();
+        }
     }
+
+    this.skipUnknown();
+    return { type: TokenType.Unknown, span: this.getSpan() };
   }
 
   private number(): Token {
-    while (isNumeric(this.current())) {
+    while (isNumeric(this.peek())) {
       this.index++;
     }
     const span = this.getSpan();
@@ -125,8 +85,22 @@ export class Tokenizer {
     };
   }
 
+  private identifier(): Token {
+    while (isAlpha(this.peek()) || this.peek() === "_") {
+      this.index++;
+    }
+    const span = this.getSpan();
+    const text = this.source.slice(span);
+    const type = fromKeyword(text);
+    if (type) {
+      return { type, span };
+    } else {
+      return { type: TokenType.Unknown, span };
+    }
+  }
+
   private takeWhile(predicate: (c: string) => boolean): string {
-    while (!this.isAtEnd() && predicate(this.current())) {
+    while (!this.isAtEnd() && predicate(this.peek())) {
       this.index++;
     }
     return this.source.slice(this.getSpan());
@@ -149,8 +123,20 @@ export class Tokenizer {
     return { start: this.start, end: this.index };
   }
 
-  /** Get the current character. */
-  private current(): string {
-    return this.source.text[this.index] ?? "\0";
+  private peek(offset = 0): string {
+    return this.source.text[this.index + offset] ?? "\0";
+  }
+}
+
+function fromKeyword(
+  text: string
+): TokenType.True | TokenType.False | undefined {
+  switch (text) {
+    case "true":
+      return TokenType.True;
+    case "false":
+      return TokenType.False;
+    default:
+      return undefined;
   }
 }
