@@ -8,6 +8,9 @@ import {
   assignmentExpression,
   type Expression,
   type IdentifierExpression,
+  expressionStatement,
+  type Statement,
+  declarationStatement,
 } from "@/analysis/ast";
 import { merge } from "@/core/span";
 
@@ -84,20 +87,49 @@ export class Parser {
     }
   }
 
-  public parse(): Expression {
-    const expr = this.expression();
-    this.expectSemicolon();
-
-    // Make sure we've reached the end of the input
+  private expectEof(): void {
     if (this.peek().type !== TokenType.Eof) {
       throw new Error("Unexpected tokens after expression");
     }
+  }
 
-    return expr;
+  public parse(): Statement {
+    const stmt = this.statement();
+    this.expectEof();
+    return stmt;
+  }
+
+  private statement(): Statement {
+    if (this.peek().type === TokenType.Let) {
+      return this.letStatement();
+    }
+    return this.expressionStatement();
+  }
+
+  private letStatement(): Statement {
+    const peek = this.peek();
+    if (peek.type !== TokenType.Let) {
+      throw new Error("Expected let keyword");
+    }
+    this.consume();
+    const mut = this.match(TokenType.Mut);
+    const identifier = this.identifierExpression();
+    this.match(TokenType.Equal);
+    const expression = this.expression();
+    const span = merge(peek.span, expression.span);
+    const stmt = declarationStatement(identifier, mut, expression, span);
+    return stmt;
+  }
+
+  private expressionStatement(): Statement {
+    const expr = this.expression();
+    return expressionStatement(expr, expr.span);
   }
 
   private expression(): Expression {
-    return this.assignmentExpression();
+    const expr = this.assignmentExpression();
+    this.expectSemicolon();
+    return expr;
   }
 
   private assignmentExpression(): Expression {
@@ -160,5 +192,14 @@ export class Parser {
     } else {
       throw new Error(`Unexpected token: ${token.type}`);
     }
+  }
+
+  private identifierExpression(): IdentifierExpression {
+    const token = this.peek();
+    if (token.type !== TokenType.Identifier) {
+      throw new Error("Expected identifier but got " + token.type);
+    }
+    this.consume();
+    return identifierExpression(token.name, token.span);
   }
 }

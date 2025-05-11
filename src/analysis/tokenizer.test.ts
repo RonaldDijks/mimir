@@ -49,13 +49,15 @@ test("tokenizes boolean expressions", () => {
 });
 
 test("tokenizes identifiers", () => {
-  const tokenizer = new Tokenizer("x = 123");
+  const tokenizer = new Tokenizer("let mut x = 123");
   const tokens = tokenizer.tokenize();
   expect(tokens).toEqual([
-    { type: TokenType.Identifier, name: "x", span: { start: 0, end: 1 } },
-    { type: TokenType.Equal, span: { start: 2, end: 3 } },
-    { type: TokenType.Number, value: 123, span: { start: 4, end: 7 } },
-    { type: TokenType.Eof, span: { start: 7, end: 8 } },
+    { type: TokenType.Let, span: { start: 0, end: 3 } },
+    { type: TokenType.Mut, span: { start: 4, end: 7 } },
+    { type: TokenType.Identifier, name: "x", span: { start: 8, end: 9 } },
+    { type: TokenType.Equal, span: { start: 10, end: 11 } },
+    { type: TokenType.Number, value: 123, span: { start: 12, end: 15 } },
+    { type: TokenType.Eof, span: { start: 15, end: 16 } },
   ]);
 });
 

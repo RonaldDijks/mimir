@@ -136,12 +136,21 @@ export class Tokenizer {
 
 function tokenizeIdentifier(
   text: string
-): TokenType.True | TokenType.False | TokenType.Identifier {
+):
+  | TokenType.True
+  | TokenType.False
+  | TokenType.Let
+  | TokenType.Mut
+  | TokenType.Identifier {
   switch (text) {
     case "true":
       return TokenType.True;
     case "false":
       return TokenType.False;
+    case "let":
+      return TokenType.Let;
+    case "mut":
+      return TokenType.Mut;
     default:
       return TokenType.Identifier;
   }

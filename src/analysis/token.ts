@@ -21,6 +21,10 @@ export const enum TokenType {
   // Identifiers
   Identifier = "identifier",
 
+  // Keywords
+  Let = "let",
+  Mut = "mut",
+
   // Special
   Unknown = "unknown",
   Eof = "eof",
@@ -52,6 +56,8 @@ export type EqualToken = BaseToken<TokenType.Equal>;
 export type SemicolonToken = BaseToken<TokenType.Semicolon>;
 export type TrueToken = BaseToken<TokenType.True>;
 export type FalseToken = BaseToken<TokenType.False>;
+export type LetToken = BaseToken<TokenType.Let>;
+export type MutToken = BaseToken<TokenType.Mut>;
 export type UnknownToken = BaseToken<TokenType.Unknown>;
 export type EofToken = BaseToken<TokenType.Eof>;
 
@@ -76,6 +82,10 @@ export type Token =
 
   // Identifiers
   | IdentifierToken
+
+  // Keywords
+  | LetToken
+  | MutToken
 
   // Special
   | UnknownToken

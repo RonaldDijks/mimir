@@ -7,6 +7,9 @@ import {
   type NumberExpression,
   type IdentifierExpression,
   type AssignmentExpression,
+  type Statement,
+  StatementType,
+  type DeclarationStatement,
 } from "@/analysis/ast";
 import {
   booleanValue,
@@ -31,11 +34,40 @@ export class UndefinedVariableError extends Error {
   }
 }
 
-export class VirtualMachine {
-  private environment = new Map<string, Value>();
+export class AssignmentToImmutableVariableError extends Error {
+  public constructor(public readonly name: string) {
+    super(`Variable '${name}' is not mutable`);
+  }
+}
 
-  public run(expression: Expression): Value {
-    return this.expression(expression);
+interface VariableDeclaration {
+  value: Value;
+  mut: boolean;
+}
+
+export class VirtualMachine {
+  private environment = new Map<string, VariableDeclaration>();
+
+  public run(statement: Statement): Value {
+    return this.statement(statement);
+  }
+
+  private statement(statement: Statement): Value {
+    switch (statement.type) {
+      case StatementType.Expression:
+        return this.expression(statement.expression);
+      case StatementType.Declaration:
+        return this.declaration(statement);
+    }
+  }
+
+  private declaration(declaration: DeclarationStatement): Value {
+    const value = this.expression(declaration.value);
+    this.environment.set(declaration.identifier.name, {
+      value,
+      mut: declaration.mut,
+    });
+    return value;
   }
 
   private expression(expression: Expression): Value {
@@ -95,12 +127,22 @@ export class VirtualMachine {
     if (value === undefined) {
       throw new UndefinedVariableError(expression.name);
     }
-    return value;
+    return value.value;
   }
 
   private assignmentExpression(expression: AssignmentExpression): Value {
+    const declaration = this.environment.get(expression.left.name);
+    if (declaration === undefined) {
+      throw new UndefinedVariableError(expression.left.name);
+    }
+    if (!declaration.mut) {
+      throw new AssignmentToImmutableVariableError(expression.left.name);
+    }
     const value = this.expression(expression.right);
-    this.environment.set(expression.left.name, value);
+    this.environment.set(expression.left.name, {
+      value,
+      mut: declaration.mut,
+    });
     return value;
   }
 }

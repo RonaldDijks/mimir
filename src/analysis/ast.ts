@@ -1,5 +1,49 @@
 import type Span from "@/core/span";
 
+export interface Program {
+  statements: ReadonlyArray<Statement>;
+}
+
+export function program(statements: ReadonlyArray<Statement>): Program {
+  return { statements };
+}
+
+export type Statement = ExpressionStatement | DeclarationStatement;
+
+export enum StatementType {
+  Expression = "expression",
+  Declaration = "declaration",
+}
+
+export interface ExpressionStatement {
+  readonly type: StatementType.Expression;
+  readonly expression: Expression;
+  readonly span: Span;
+}
+
+export function expressionStatement(
+  expression: Expression,
+  span: Span
+): ExpressionStatement {
+  return { type: StatementType.Expression, expression, span };
+}
+
+export interface DeclarationStatement {
+  readonly type: StatementType.Declaration;
+  readonly identifier: IdentifierExpression;
+  readonly mut: boolean;
+  readonly value: Expression;
+  readonly span: Span;
+}
+
+export function declarationStatement(
+  identifier: IdentifierExpression,
+  mut: boolean,
+  value: Expression,
+  span: Span
+): DeclarationStatement {
+  return { type: StatementType.Declaration, identifier, mut, value, span };
+}
 export enum ExpressionType {
   Number = "number",
   Boolean = "boolean",
