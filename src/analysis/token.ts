@@ -1,8 +1,12 @@
 import type Span from "@/core/span";
 
 export const enum TokenType {
+  // Literals
   Number = "number",
+  True = "true",
+  False = "false",
 
+  // Operators
   Plus = "plus",
   Minus = "minus",
   Asterisk = "asterisk",
@@ -10,18 +14,55 @@ export const enum TokenType {
   AmpersandAmpersand = "ampersand_ampersand",
   PipePipe = "pipe_pipe",
   Equal = "equal",
+
+  // Punctuation
   Semicolon = "semicolon",
 
-  True = "true",
-  False = "false",
+  // Identifiers
   Identifier = "identifier",
 
+  // Special
   Unknown = "unknown",
   Eof = "eof",
 }
 
+// Generic base token interface with common properties
+export interface BaseToken<T extends TokenType, P = {}> {
+  type: T;
+  span: Span;
+}
+
+// Token definitions with specific properties
+export type NumberToken = BaseToken<TokenType.Number> & {
+  value: number;
+};
+
+export type IdentifierToken = BaseToken<TokenType.Identifier> & {
+  name: string;
+};
+
+// Simple tokens without additional properties
+export type PlusToken = BaseToken<TokenType.Plus>;
+export type MinusToken = BaseToken<TokenType.Minus>;
+export type AsteriskToken = BaseToken<TokenType.Asterisk>;
+export type SlashToken = BaseToken<TokenType.Slash>;
+export type AmpersandAmpersandToken = BaseToken<TokenType.AmpersandAmpersand>;
+export type PipePipeToken = BaseToken<TokenType.PipePipe>;
+export type EqualToken = BaseToken<TokenType.Equal>;
+export type SemicolonToken = BaseToken<TokenType.Semicolon>;
+export type TrueToken = BaseToken<TokenType.True>;
+export type FalseToken = BaseToken<TokenType.False>;
+export type UnknownToken = BaseToken<TokenType.Unknown>;
+export type EofToken = BaseToken<TokenType.Eof>;
+
+// Union type for all tokens, ordered to match TokenType enum
 export type Token =
+  // Literals
   | NumberToken
+  | TrueToken
+  | FalseToken
+
+  // Operators
   | PlusToken
   | MinusToken
   | AsteriskToken
@@ -29,81 +70,13 @@ export type Token =
   | AmpersandAmpersandToken
   | PipePipeToken
   | EqualToken
+
+  // Punctuation
   | SemicolonToken
-  | TrueToken
-  | FalseToken
+
+  // Identifiers
   | IdentifierToken
+
+  // Special
   | UnknownToken
   | EofToken;
-
-export interface NumberToken {
-  type: TokenType.Number;
-  value: number;
-  span: Span;
-}
-
-export interface PlusToken {
-  type: TokenType.Plus;
-  span: Span;
-}
-
-export interface MinusToken {
-  type: TokenType.Minus;
-  span: Span;
-}
-
-export interface AsteriskToken {
-  type: TokenType.Asterisk;
-  span: Span;
-}
-
-export interface SlashToken {
-  type: TokenType.Slash;
-  span: Span;
-}
-
-export interface AmpersandAmpersandToken {
-  type: TokenType.AmpersandAmpersand;
-  span: Span;
-}
-
-export interface PipePipeToken {
-  type: TokenType.PipePipe;
-  span: Span;
-}
-
-export interface EqualToken {
-  type: TokenType.Equal;
-  span: Span;
-}
-
-export interface SemicolonToken {
-  type: TokenType.Semicolon;
-  span: Span;
-}
-
-export interface TrueToken {
-  type: TokenType.True;
-  span: Span;
-}
-
-export interface FalseToken {
-  type: TokenType.False;
-  span: Span;
-}
-
-export interface IdentifierToken {
-  type: TokenType.Identifier;
-  name: string;
-  span: Span;
-}
-
-export interface UnknownToken {
-  type: TokenType.Unknown;
-  span: Span;
-}
-
-export interface EofToken {
-  type: TokenType.Eof;
-  span: Span;
-}
