@@ -10,6 +10,7 @@
     "typescript": "^5"
   },
   "scripts": {
-    "dev": "bun test --watch"
+    "dev": "bun test --watch",
+    "repl": "bun src/bin/repl.ts"
   }
 }
