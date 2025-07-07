@@ -1,5 +1,5 @@
 import { span } from "./span";
-import { TokenType, type Token } from "./token";
+import { keyword, TokenType, type Token } from "./token";
 
 export function tokenize(input: string): Token[] {
   const tokenizer = new Tokenizer(input);
@@ -8,20 +8,28 @@ export function tokenize(input: string): Token[] {
 }
 
 export class Tokenizer {
+  private start: number = 0;
   private current: number = 0;
 
   public constructor(private readonly input: string) {}
+
+  private peek(offset = 0): string {
+    const index = this.current + offset;
+    if (index >= this.input.length) {
+      return "\0";
+    }
+    return this.input[index]!;
+  }
 
   public next(): Token {
     while (this.input[this.current] === " ") {
       this.current++;
     }
 
-    const current = this.input[this.current];
-    const start = this.current;
+    this.start = this.current;
 
     let type: TokenType;
-    switch (current) {
+    switch (this.peek()) {
       case "+":
         type = TokenType.Plus;
         this.current++;
@@ -38,6 +46,24 @@ export class Tokenizer {
         type = TokenType.Slash;
         this.current++;
         break;
+      case "&":
+        if (this.peek(1) === "&") {
+          type = TokenType.AmpersandAmpersand;
+          this.current += 2;
+          break;
+        }
+        type = TokenType.Unknown;
+        this.current++;
+        break;
+      case "|":
+        if (this.peek(1) === "|") {
+          type = TokenType.PipePipe;
+          this.current += 2;
+          break;
+        }
+        type = TokenType.Unknown;
+        this.current++;
+        break;
 
       case "0":
       case "1":
@@ -51,7 +77,7 @@ export class Tokenizer {
       case "9":
         return this.number();
 
-      case undefined:
+      case "\0":
         return {
           type: TokenType.EndOfFile,
           text: "\0",
@@ -59,12 +85,32 @@ export class Tokenizer {
         };
 
       default:
-        type = TokenType.Unknown;
-        this.current++;
+        if (this.peek().match(/[a-z]/i)) {
+          while (this.peek().match(/[a-z]/i)) {
+            this.current++;
+          }
+          type = keyword(this.input.slice(this.start, this.current));
+          break;
+        } else {
+          type = TokenType.Unknown;
+          this.current++;
+          while (true) {
+            const peek = this.peek();
+            if (peek === "\0" || !peek.match(/[a-z]/i)) {
+              break;
+            }
+            this.current++;
+          }
+        }
+
         break;
     }
 
-    return { type, text: current!, span: span(start, start + 1) };
+    return {
+      type,
+      text: this.input.slice(this.start, this.current),
+      span: span(this.start, this.current),
+    };
   }
 
   private number(): Token {

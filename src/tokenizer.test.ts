@@ -13,3 +13,19 @@ test("tokenize simple expression", () => {
     { type: TokenType.EndOfFile, text: "\0", span: { start: 9, end: 9 } },
   ]);
 });
+
+test("tokenize boolean expression", () => {
+  const tokens = tokenize("true && false || true");
+  expect(tokens).toStrictEqual([
+    { type: TokenType.True, text: "true", span: { start: 0, end: 4 } },
+    {
+      type: TokenType.AmpersandAmpersand,
+      text: "&&",
+      span: { start: 5, end: 7 },
+    },
+    { type: TokenType.False, text: "false", span: { start: 8, end: 13 } },
+    { type: TokenType.PipePipe, text: "||", span: { start: 14, end: 16 } },
+    { type: TokenType.True, text: "true", span: { start: 17, end: 21 } },
+    { type: TokenType.EndOfFile, text: "\0", span: { start: 21, end: 21 } },
+  ]);
+});

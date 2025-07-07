@@ -3,8 +3,10 @@ import { TokenType, type Token } from "./token";
 
 enum Precedence {
   Lowest = 0,
-  Addition = 1,
-  Multiplication = 2,
+  LogicalOr = 1,
+  LogicalAnd = 2,
+  Addition = 3,
+  Multiplication = 4,
 }
 
 export function parse(tokens: Token[]) {
@@ -70,19 +72,47 @@ export class Parser {
   }
 
   private primaryExpression(): Expression {
-    const token = this.next_token();
-    if (token.type === TokenType.Number) {
-      return {
-        type: ExpressionType.NumberLiteralExpression,
-        value: token.value,
-      };
+    const token = this.current_token();
+    switch (token.type) {
+      case TokenType.Number:
+        return this.numberLiteralExpression();
+      case TokenType.True:
+      case TokenType.False:
+        return this.booleanLiteralExpression();
+      default:
+        throw new Error("Unexpected token");
     }
-    throw new Error("Unexpected token");
+  }
+
+  private numberLiteralExpression(): Expression {
+    const token = this.next_token();
+    if (token.type !== TokenType.Number) {
+      throw new Error("Unexpected token");
+    }
+    return {
+      type: ExpressionType.NumberLiteralExpression,
+      value: token.value,
+    };
+  }
+
+  private booleanLiteralExpression(): Expression {
+    const token = this.next_token();
+    if (token.type !== TokenType.True && token.type !== TokenType.False) {
+      throw new Error("Unexpected token");
+    }
+    return {
+      type: ExpressionType.BooleanLiteralExpression,
+      value: token.type === TokenType.True,
+    };
   }
 }
 
 function binaryOperatorPrecedence(operator: TokenType): Precedence {
   switch (operator) {
+    case TokenType.PipePipe:
+      return Precedence.LogicalOr;
+    case TokenType.AmpersandAmpersand:
+      return Precedence.LogicalAnd;
     case TokenType.Plus:
       return Precedence.Addition;
     case TokenType.Minus:

@@ -2,6 +2,7 @@ import type { Token } from "./token";
 
 export enum ExpressionType {
   BinaryExpression = "BinaryExpression",
+  BooleanLiteralExpression = "BooleanLiteralExpression",
   NumberLiteralExpression = "NumberLiteralExpression",
 }
 
@@ -12,9 +13,17 @@ export interface BinaryExpression {
   operator: Token;
 }
 
+export interface BooleanLiteralExpression {
+  type: ExpressionType.BooleanLiteralExpression;
+  value: boolean;
+}
+
 export interface NumberLiteralExpression {
   type: ExpressionType.NumberLiteralExpression;
   value: number;
 }
 
-export type Expression = BinaryExpression | NumberLiteralExpression;
+export type Expression =
+  | BinaryExpression
+  | BooleanLiteralExpression
+  | NumberLiteralExpression;

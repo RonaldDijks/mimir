@@ -93,3 +93,36 @@ test("parses complex operator precedence correctly", () => {
     },
   });
 });
+
+test("parse boolean expression", () => {
+  const tokens = tokenize("true && false || true");
+  const ast = parse(tokens);
+  expect(ast).toStrictEqual({
+    type: ExpressionType.BinaryExpression,
+    left: {
+      type: ExpressionType.BinaryExpression,
+      left: {
+        type: ExpressionType.BooleanLiteralExpression,
+        value: true,
+      },
+      operator: {
+        type: TokenType.AmpersandAmpersand,
+        text: "&&",
+        span: { start: 5, end: 7 },
+      },
+      right: {
+        type: ExpressionType.BooleanLiteralExpression,
+        value: false,
+      },
+    },
+    operator: {
+      type: TokenType.PipePipe,
+      text: "||",
+      span: { start: 14, end: 16 },
+    },
+    right: {
+      type: ExpressionType.BooleanLiteralExpression,
+      value: true,
+    },
+  });
+});

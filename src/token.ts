@@ -8,43 +8,40 @@ export enum TokenType {
   Asterisk = "Asterisk",
   Slash = "Slash",
 
+  AmpersandAmpersand = "AmpersandAmpersand",
+  PipePipe = "PipePipe",
+
+  True = "True",
+  False = "False",
+
   Unknown = "Unknown",
   EndOfFile = "EndOfFile",
 }
 
-interface Base {
+interface Base<Type extends TokenType> {
+  type: Type;
   span: Span;
   text: string;
 }
 
-export interface NumberToken extends Base {
-  type: TokenType.Number;
+export interface NumberToken extends Base<TokenType.Number> {
   value: number;
 }
 
-export interface PlusToken extends Base {
-  type: TokenType.Plus;
-}
+export interface PlusToken extends Base<TokenType.Plus> {}
+export interface MinusToken extends Base<TokenType.Minus> {}
+export interface AsteriskToken extends Base<TokenType.Asterisk> {}
+export interface SlashToken extends Base<TokenType.Slash> {}
 
-export interface MinusToken extends Base {
-  type: TokenType.Minus;
-}
+export interface AmpersandAmpersandToken
+  extends Base<TokenType.AmpersandAmpersand> {}
+export interface PipePipeToken extends Base<TokenType.PipePipe> {}
 
-export interface AsteriskToken extends Base {
-  type: TokenType.Asterisk;
-}
+export interface TrueToken extends Base<TokenType.True> {}
+export interface FalseToken extends Base<TokenType.False> {}
 
-export interface SlashToken extends Base {
-  type: TokenType.Slash;
-}
-
-export interface UnknownToken extends Base {
-  type: TokenType.Unknown;
-}
-
-export interface EndOfFileToken extends Base {
-  type: TokenType.EndOfFile;
-}
+export interface UnknownToken extends Base<TokenType.Unknown> {}
+export interface EndOfFileToken extends Base<TokenType.EndOfFile> {}
 
 export type Token =
   | NumberToken
@@ -52,5 +49,20 @@ export type Token =
   | MinusToken
   | AsteriskToken
   | SlashToken
+  | AmpersandAmpersandToken
+  | PipePipeToken
+  | TrueToken
+  | FalseToken
   | UnknownToken
   | EndOfFileToken;
+
+export function keyword(
+  input: string
+): TokenType.True | TokenType.False | TokenType.Unknown {
+  if (input === "true") {
+    return TokenType.True;
+  } else if (input === "false") {
+    return TokenType.False;
+  }
+  return TokenType.Unknown;
+}
