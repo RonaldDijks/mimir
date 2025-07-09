@@ -10,6 +10,12 @@ export enum TokenType {
 
   AmpersandAmpersand = "AmpersandAmpersand",
   PipePipe = "PipePipe",
+  EqualsEquals = "EqualsEquals",
+  BangEquals = "BangEquals",
+  LessThan = "LessThan",
+  LessThanEquals = "LessThanEquals",
+  GreaterThan = "GreaterThan",
+  GreaterThanEquals = "GreaterThanEquals",
 
   True = "True",
   False = "False",
@@ -36,6 +42,13 @@ export interface SlashToken extends Base<TokenType.Slash> {}
 export interface AmpersandAmpersandToken
   extends Base<TokenType.AmpersandAmpersand> {}
 export interface PipePipeToken extends Base<TokenType.PipePipe> {}
+export interface EqualsEqualsToken extends Base<TokenType.EqualsEquals> {}
+export interface BangEqualsToken extends Base<TokenType.BangEquals> {}
+export interface LessThanToken extends Base<TokenType.LessThan> {}
+export interface LessThanEqualsToken extends Base<TokenType.LessThanEquals> {}
+export interface GreaterThanToken extends Base<TokenType.GreaterThan> {}
+export interface GreaterThanEqualsToken
+  extends Base<TokenType.GreaterThanEquals> {}
 
 export interface TrueToken extends Base<TokenType.True> {}
 export interface FalseToken extends Base<TokenType.False> {}
@@ -51,6 +64,12 @@ export type Token =
   | SlashToken
   | AmpersandAmpersandToken
   | PipePipeToken
+  | EqualsEqualsToken
+  | BangEqualsToken
+  | LessThanToken
+  | LessThanEqualsToken
+  | GreaterThanToken
+  | GreaterThanEqualsToken
   | TrueToken
   | FalseToken
   | UnknownToken

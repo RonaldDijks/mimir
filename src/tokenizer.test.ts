@@ -29,3 +29,56 @@ test("tokenize boolean expression", () => {
     { type: TokenType.EndOfFile, text: "\0", span: { start: 21, end: 21 } },
   ]);
 });
+
+test("tokenize comparison expressions", () => {
+  const tokens = tokenize("1 == 2 != 3 > 4 >= 5 < 6 <= 7");
+  expect(tokens).toStrictEqual([
+    { type: TokenType.Number, text: "1", span: { start: 0, end: 1 }, value: 1 },
+    { type: TokenType.EqualsEquals, text: "==", span: { start: 2, end: 4 } },
+    { type: TokenType.Number, text: "2", span: { start: 5, end: 6 }, value: 2 },
+    { type: TokenType.BangEquals, text: "!=", span: { start: 7, end: 9 } },
+    {
+      type: TokenType.Number,
+      text: "3",
+      span: { start: 10, end: 11 },
+      value: 3,
+    },
+    { type: TokenType.GreaterThan, text: ">", span: { start: 12, end: 13 } },
+    {
+      type: TokenType.Number,
+      text: "4",
+      span: { start: 14, end: 15 },
+      value: 4,
+    },
+    {
+      type: TokenType.GreaterThanEquals,
+      text: ">=",
+      span: { start: 16, end: 18 },
+    },
+    {
+      type: TokenType.Number,
+      text: "5",
+      span: { start: 19, end: 20 },
+      value: 5,
+    },
+    { type: TokenType.LessThan, text: "<", span: { start: 21, end: 22 } },
+    {
+      type: TokenType.Number,
+      text: "6",
+      span: { start: 23, end: 24 },
+      value: 6,
+    },
+    {
+      type: TokenType.LessThanEquals,
+      text: "<=",
+      span: { start: 25, end: 27 },
+    },
+    {
+      type: TokenType.Number,
+      text: "7",
+      span: { start: 28, end: 29 },
+      value: 7,
+    },
+    { type: TokenType.EndOfFile, text: "\0", span: { start: 29, end: 29 } },
+  ]);
+});

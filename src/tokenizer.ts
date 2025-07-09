@@ -64,6 +64,44 @@ export class Tokenizer {
         type = TokenType.Unknown;
         this.current++;
         break;
+      case "=":
+        if (this.peek(1) === "=") {
+          type = TokenType.EqualsEquals;
+          this.current += 2;
+          break;
+        }
+        type = TokenType.Unknown;
+        this.current++;
+        break;
+      case "!":
+        if (this.peek(1) === "=") {
+          type = TokenType.BangEquals;
+          this.current += 2;
+          break;
+        }
+        type = TokenType.Unknown;
+        this.current++;
+        break;
+      case "<":
+        if (this.peek(1) === "=") {
+          type = TokenType.LessThanEquals;
+          this.current += 2;
+          break;
+        }
+        type = TokenType.LessThan;
+        this.current++;
+        break;
+      case ">":
+        console.log(this.peek(1));
+        if (this.peek(1) === "=") {
+          console.log("greater than equals");
+          type = TokenType.GreaterThanEquals;
+          this.current += 2;
+          break;
+        }
+        type = TokenType.GreaterThan;
+        this.current++;
+        break;
 
       case "0":
       case "1":

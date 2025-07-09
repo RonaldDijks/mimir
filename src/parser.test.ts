@@ -2,7 +2,7 @@ import { test, expect } from "bun:test";
 import { parse } from "./parser";
 import { tokenize } from "./tokenizer";
 import { ExpressionType } from "./ast";
-import { TokenType } from "./token";
+import { TokenType, type Token } from "./token";
 
 test("parse simple expression", () => {
   const tokens = tokenize("1 + 2 * 3");
@@ -125,4 +125,35 @@ test("parse boolean expression", () => {
       value: true,
     },
   });
+});
+
+test("parse comparison expression", () => {
+  const operators: [string, TokenType][] = [
+    ["==", TokenType.EqualsEquals],
+    ["!=", TokenType.BangEquals],
+    [">", TokenType.GreaterThan],
+    [">=", TokenType.GreaterThanEquals],
+    ["<", TokenType.LessThan],
+    ["<=", TokenType.LessThanEquals],
+  ];
+  for (const operator of operators) {
+    const expression = `1 ${operator[0]} 2`;
+    const ast = parse(tokenize(expression));
+    expect(ast).toStrictEqual({
+      type: ExpressionType.BinaryExpression,
+      left: {
+        type: ExpressionType.NumberLiteralExpression,
+        value: 1,
+      },
+      operator: {
+        type: operator[1],
+        text: operator[0],
+        span: { start: 2, end: 2 + operator[0].length },
+      } as Token,
+      right: {
+        type: ExpressionType.NumberLiteralExpression,
+        value: 2,
+      },
+    });
+  }
 });

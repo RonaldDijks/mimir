@@ -1,20 +1,14 @@
 import { ExpressionType, type BinaryExpression, type Expression } from "./ast";
 import { TokenType } from "./token";
-import { ValueType, type Value } from "./value";
+import { booleanValue, numberValue, ValueType, type Value } from "./value";
 
 export class Evaluator {
   public evaluate(expression: Expression): Value {
     switch (expression.type) {
       case ExpressionType.NumberLiteralExpression:
-        return {
-          type: ValueType.Number,
-          value: expression.value,
-        };
+        return numberValue(expression.value);
       case ExpressionType.BooleanLiteralExpression:
-        return {
-          type: ValueType.Boolean,
-          value: expression.value,
-        };
+        return booleanValue(expression.value);
       case ExpressionType.BinaryExpression:
         return this.evaluateBinaryExpression(expression);
       default:
@@ -29,40 +23,38 @@ export class Evaluator {
     if (left.type === ValueType.Number && right.type === ValueType.Number) {
       switch (expression.operator.type) {
         case TokenType.Plus:
-          return {
-            type: ValueType.Number,
-            value: left.value + right.value,
-          };
+          return numberValue(left.value + right.value);
         case TokenType.Minus:
-          return {
-            type: ValueType.Number,
-            value: left.value - right.value,
-          };
+          return numberValue(left.value - right.value);
         case TokenType.Asterisk:
-          return {
-            type: ValueType.Number,
-            value: left.value * right.value,
-          };
+          return numberValue(left.value * right.value);
         case TokenType.Slash:
-          return {
-            type: ValueType.Number,
-            value: left.value / right.value,
-          };
+          return numberValue(left.value / right.value);
+        case TokenType.EqualsEquals:
+          return booleanValue(left.value === right.value);
+        case TokenType.BangEquals:
+          return booleanValue(left.value !== right.value);
+        case TokenType.LessThan:
+          return booleanValue(left.value < right.value);
+        case TokenType.LessThanEquals:
+          return booleanValue(left.value <= right.value);
+        case TokenType.GreaterThan:
+          return booleanValue(left.value > right.value);
+        case TokenType.GreaterThanEquals:
+          return booleanValue(left.value >= right.value);
       }
     }
 
     if (left.type === ValueType.Boolean && right.type === ValueType.Boolean) {
       switch (expression.operator.type) {
         case TokenType.AmpersandAmpersand:
-          return {
-            type: ValueType.Boolean,
-            value: left.value && right.value,
-          };
+          return booleanValue(left.value && right.value);
         case TokenType.PipePipe:
-          return {
-            type: ValueType.Boolean,
-            value: left.value || right.value,
-          };
+          return booleanValue(left.value || right.value);
+        case TokenType.EqualsEquals:
+          return booleanValue(left.value === right.value);
+        case TokenType.BangEquals:
+          return booleanValue(left.value !== right.value);
       }
     }
 

@@ -5,8 +5,10 @@ enum Precedence {
   Lowest = 0,
   LogicalOr = 1,
   LogicalAnd = 2,
-  Addition = 3,
-  Multiplication = 4,
+  Equality = 3,
+  Relational = 4,
+  Additive = 5,
+  Multiplicative = 6,
 }
 
 export function parse(tokens: Token[]) {
@@ -114,13 +116,25 @@ function binaryOperatorPrecedence(operator: TokenType): Precedence {
     case TokenType.AmpersandAmpersand:
       return Precedence.LogicalAnd;
     case TokenType.Plus:
-      return Precedence.Addition;
+      return Precedence.Additive;
     case TokenType.Minus:
-      return Precedence.Addition;
+      return Precedence.Additive;
     case TokenType.Asterisk:
-      return Precedence.Multiplication;
+      return Precedence.Multiplicative;
     case TokenType.Slash:
-      return Precedence.Multiplication;
+      return Precedence.Multiplicative;
+    case TokenType.EqualsEquals:
+      return Precedence.Equality;
+    case TokenType.BangEquals:
+      return Precedence.Equality;
+    case TokenType.LessThan:
+      return Precedence.Relational;
+    case TokenType.LessThanEquals:
+      return Precedence.Relational;
+    case TokenType.GreaterThan:
+      return Precedence.Relational;
+    case TokenType.GreaterThanEquals:
+      return Precedence.Relational;
     default:
       return Precedence.Lowest;
   }
