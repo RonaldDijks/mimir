@@ -1,4 +1,11 @@
-import { ExpressionType, type Expression } from "./ast";
+import {
+  binaryExpression,
+  booleanLiteralExpression,
+  numberLiteralExpression,
+  parenthesizedExpression,
+  unaryExpression,
+  type Expression,
+} from "./ast";
 import { TokenType, type Token } from "./token";
 
 enum Precedence {
@@ -61,11 +68,7 @@ export class Parser {
     } else {
       const operator = this.next_token();
       const right = this.binaryExpression(unaryPrecedence);
-      left = {
-        type: ExpressionType.UnaryExpression,
-        operator,
-        right,
-      };
+      left = unaryExpression(operator, right);
     }
 
     while (true) {
@@ -76,12 +79,7 @@ export class Parser {
 
       const operator = this.next_token();
       const right = this.binaryExpression(precedence);
-      left = {
-        type: ExpressionType.BinaryExpression,
-        left,
-        right,
-        operator,
-      };
+      left = binaryExpression(left, right, operator);
     }
 
     return left;
@@ -112,10 +110,7 @@ export class Parser {
     if (parenthesisClose.type !== TokenType.ParenthesisClose) {
       throw new Error(`Unexpected token: ${parenthesisClose.type}`);
     }
-    return {
-      type: ExpressionType.ParenthesizedExpression,
-      expression,
-    };
+    return parenthesizedExpression(expression);
   }
 
   private numberLiteralExpression(): Expression {
@@ -123,10 +118,7 @@ export class Parser {
     if (token.type !== TokenType.Number) {
       throw new Error(`Unexpected token: ${token.type}`);
     }
-    return {
-      type: ExpressionType.NumberLiteralExpression,
-      value: token.value,
-    };
+    return numberLiteralExpression(token.value);
   }
 
   private booleanLiteralExpression(): Expression {
@@ -134,10 +126,7 @@ export class Parser {
     if (token.type !== TokenType.True && token.type !== TokenType.False) {
       throw new Error(`Unexpected token: ${token.type}`);
     }
-    return {
-      type: ExpressionType.BooleanLiteralExpression,
-      value: token.type === TokenType.True,
-    };
+    return booleanLiteralExpression(token.type === TokenType.True);
   }
 }
 
