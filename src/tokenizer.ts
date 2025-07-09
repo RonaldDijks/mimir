@@ -79,7 +79,7 @@ export class Tokenizer {
           this.current += 2;
           break;
         }
-        type = TokenType.Unknown;
+        type = TokenType.Bang;
         this.current++;
         break;
       case "<":

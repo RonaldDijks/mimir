@@ -11,6 +11,7 @@ export enum TokenType {
   AmpersandAmpersand = "AmpersandAmpersand",
   PipePipe = "PipePipe",
   EqualsEquals = "EqualsEquals",
+  Bang = "Bang",
   BangEquals = "BangEquals",
   LessThan = "LessThan",
   LessThanEquals = "LessThanEquals",
@@ -43,6 +44,7 @@ export interface AmpersandAmpersandToken
   extends Base<TokenType.AmpersandAmpersand> {}
 export interface PipePipeToken extends Base<TokenType.PipePipe> {}
 export interface EqualsEqualsToken extends Base<TokenType.EqualsEquals> {}
+export interface BangToken extends Base<TokenType.Bang> {}
 export interface BangEqualsToken extends Base<TokenType.BangEquals> {}
 export interface LessThanToken extends Base<TokenType.LessThan> {}
 export interface LessThanEqualsToken extends Base<TokenType.LessThanEquals> {}
@@ -65,6 +67,7 @@ export type Token =
   | AmpersandAmpersandToken
   | PipePipeToken
   | EqualsEqualsToken
+  | BangToken
   | BangEqualsToken
   | LessThanToken
   | LessThanEqualsToken

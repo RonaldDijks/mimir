@@ -1,18 +1,40 @@
-import { ExpressionType, type BinaryExpression, type Expression } from "./ast";
+import { assertNever } from "./assert";
+import {
+  ExpressionType,
+  type BinaryExpression,
+  type Expression,
+  type UnaryExpression,
+} from "./ast";
 import { TokenType } from "./token";
 import { booleanValue, numberValue, ValueType, type Value } from "./value";
 
 export class Evaluator {
   public evaluate(expression: Expression): Value {
     switch (expression.type) {
+      case ExpressionType.UnaryExpression:
+        return this.evaluateUnaryExpression(expression);
+      case ExpressionType.BinaryExpression:
+        return this.evaluateBinaryExpression(expression);
       case ExpressionType.NumberLiteralExpression:
         return numberValue(expression.value);
       case ExpressionType.BooleanLiteralExpression:
         return booleanValue(expression.value);
-      case ExpressionType.BinaryExpression:
-        return this.evaluateBinaryExpression(expression);
       default:
-        throw new Error("Unexpected expression type");
+        assertNever(expression);
+    }
+  }
+
+  private evaluateUnaryExpression(expression: UnaryExpression): Value {
+    const right = this.evaluate(expression.right);
+    switch (expression.operator.type) {
+      case TokenType.Bang:
+        return booleanValue(!right.value);
+      case TokenType.Minus:
+        return numberValue(-right.value);
+      default:
+        throw new Error(
+          `Unexpected unary operator type: ${expression.operator.type}`
+        );
     }
   }
 
@@ -58,6 +80,8 @@ export class Evaluator {
       }
     }
 
-    throw new Error("Unexpected operator type");
+    throw new Error(
+      `Unexpected binary operator type: ${expression.operator.type}`
+    );
   }
 }

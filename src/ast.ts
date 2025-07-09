@@ -1,9 +1,16 @@
 import type { Token } from "./token";
 
 export enum ExpressionType {
+  UnaryExpression = "UnaryExpression",
   BinaryExpression = "BinaryExpression",
   BooleanLiteralExpression = "BooleanLiteralExpression",
   NumberLiteralExpression = "NumberLiteralExpression",
+}
+
+export interface UnaryExpression {
+  type: ExpressionType.UnaryExpression;
+  operator: Token;
+  right: Expression;
 }
 
 export interface BinaryExpression {
@@ -24,6 +31,7 @@ export interface NumberLiteralExpression {
 }
 
 export type Expression =
+  | UnaryExpression
   | BinaryExpression
   | BooleanLiteralExpression
   | NumberLiteralExpression;

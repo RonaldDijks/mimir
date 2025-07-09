@@ -157,3 +157,20 @@ test("parse comparison expression", () => {
     });
   }
 });
+
+test("parse unary expression", () => {
+  const tokens = tokenize("!true");
+  const ast = parse(tokens);
+  expect(ast).toStrictEqual({
+    type: ExpressionType.UnaryExpression,
+    operator: {
+      type: TokenType.Bang,
+      text: "!",
+      span: { start: 0, end: 1 },
+    },
+    right: {
+      type: ExpressionType.BooleanLiteralExpression,
+      value: true,
+    },
+  });
+});

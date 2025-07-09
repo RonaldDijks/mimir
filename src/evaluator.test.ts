@@ -36,3 +36,14 @@ test("evaluate relational expression", () => {
     value: true,
   });
 });
+
+test("evaluate unary expression", () => {
+  const tokens = tokenize("!true");
+  const ast = parse(tokens);
+  const evaluator = new Evaluator();
+  const result = evaluator.evaluate(ast);
+  expect(result).toStrictEqual({
+    type: ValueType.Boolean,
+    value: false,
+  });
+});

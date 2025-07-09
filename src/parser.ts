@@ -9,6 +9,7 @@ enum Precedence {
   Relational = 4,
   Additive = 5,
   Multiplicative = 6,
+  Unary = 7,
 }
 
 export function parse(tokens: Token[]) {
@@ -51,12 +52,25 @@ export class Parser {
     return this.binaryExpression(Precedence.Lowest);
   }
 
-  private binaryExpression(parent_precedence: Precedence): Expression {
-    let left: Expression = this.primaryExpression();
+  private binaryExpression(parentPrecedence: Precedence): Expression {
+    const unaryPrecedence = unaryOperatorPrecedence(this.current_type());
+
+    let left: Expression;
+    if (unaryPrecedence <= parentPrecedence) {
+      left = this.primaryExpression();
+    } else {
+      const operator = this.next_token();
+      const right = this.binaryExpression(unaryPrecedence);
+      left = {
+        type: ExpressionType.UnaryExpression,
+        operator,
+        right,
+      };
+    }
 
     while (true) {
       const precedence = binaryOperatorPrecedence(this.current_type());
-      if (precedence <= parent_precedence) {
+      if (precedence <= parentPrecedence) {
         break;
       }
 
@@ -82,14 +96,14 @@ export class Parser {
       case TokenType.False:
         return this.booleanLiteralExpression();
       default:
-        throw new Error("Unexpected token");
+        throw new Error(`Unexpected token: ${token.type}`);
     }
   }
 
   private numberLiteralExpression(): Expression {
     const token = this.next_token();
     if (token.type !== TokenType.Number) {
-      throw new Error("Unexpected token");
+      throw new Error(`Unexpected token: ${token.type}`);
     }
     return {
       type: ExpressionType.NumberLiteralExpression,
@@ -100,12 +114,23 @@ export class Parser {
   private booleanLiteralExpression(): Expression {
     const token = this.next_token();
     if (token.type !== TokenType.True && token.type !== TokenType.False) {
-      throw new Error("Unexpected token");
+      throw new Error(`Unexpected token: ${token.type}`);
     }
     return {
       type: ExpressionType.BooleanLiteralExpression,
       value: token.type === TokenType.True,
     };
+  }
+}
+
+function unaryOperatorPrecedence(operator: TokenType): Precedence {
+  switch (operator) {
+    case TokenType.Bang:
+      return Precedence.Unary;
+    case TokenType.Minus:
+      return Precedence.Unary;
+    default:
+      return Precedence.Lowest;
   }
 }
 
