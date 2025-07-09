@@ -174,3 +174,39 @@ test("parse unary expression", () => {
     },
   });
 });
+
+test("parse parenthesized expression", () => {
+  const tokens = tokenize("(1 + 2) * 3");
+  const ast = parse(tokens);
+  expect(ast).toStrictEqual({
+    type: ExpressionType.BinaryExpression,
+    left: {
+      type: ExpressionType.ParenthesizedExpression,
+      expression: {
+        type: ExpressionType.BinaryExpression,
+        left: {
+          type: ExpressionType.NumberLiteralExpression,
+          value: 1,
+        },
+        operator: {
+          type: TokenType.Plus,
+          text: "+",
+          span: { start: 3, end: 4 },
+        },
+        right: {
+          type: ExpressionType.NumberLiteralExpression,
+          value: 2,
+        },
+      },
+    },
+    operator: {
+      type: TokenType.Asterisk,
+      text: "*",
+      span: { start: 8, end: 9 },
+    },
+    right: {
+      type: ExpressionType.NumberLiteralExpression,
+      value: 3,
+    },
+  });
+});

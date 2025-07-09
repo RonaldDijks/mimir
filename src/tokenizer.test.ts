@@ -82,3 +82,22 @@ test("tokenize comparison expressions", () => {
     { type: TokenType.EndOfFile, text: "\0", span: { start: 29, end: 29 } },
   ]);
 });
+
+test("tokenize parenthesis", () => {
+  const tokens = tokenize("(1 + 2) * 3");
+  expect(tokens).toStrictEqual([
+    { type: TokenType.ParenthesisOpen, text: "(", span: { start: 0, end: 1 } },
+    { type: TokenType.Number, text: "1", span: { start: 1, end: 2 }, value: 1 },
+    { type: TokenType.Plus, text: "+", span: { start: 3, end: 4 } },
+    { type: TokenType.Number, text: "2", span: { start: 5, end: 6 }, value: 2 },
+    { type: TokenType.ParenthesisClose, text: ")", span: { start: 6, end: 7 } },
+    { type: TokenType.Asterisk, text: "*", span: { start: 8, end: 9 } },
+    {
+      type: TokenType.Number,
+      text: "3",
+      span: { start: 10, end: 11 },
+      value: 3,
+    },
+    { type: TokenType.EndOfFile, text: "\0", span: { start: 11, end: 11 } },
+  ]);
+});

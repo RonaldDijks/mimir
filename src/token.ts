@@ -18,6 +18,9 @@ export enum TokenType {
   GreaterThan = "GreaterThan",
   GreaterThanEquals = "GreaterThanEquals",
 
+  ParenthesisOpen = "ParenthesisOpen",
+  ParenthesisClose = "ParenthesisClose",
+
   True = "True",
   False = "False",
 
@@ -52,6 +55,10 @@ export interface GreaterThanToken extends Base<TokenType.GreaterThan> {}
 export interface GreaterThanEqualsToken
   extends Base<TokenType.GreaterThanEquals> {}
 
+export interface ParenthesisOpenToken extends Base<TokenType.ParenthesisOpen> {}
+export interface ParenthesisCloseToken
+  extends Base<TokenType.ParenthesisClose> {}
+
 export interface TrueToken extends Base<TokenType.True> {}
 export interface FalseToken extends Base<TokenType.False> {}
 
@@ -73,6 +80,8 @@ export type Token =
   | LessThanEqualsToken
   | GreaterThanToken
   | GreaterThanEqualsToken
+  | ParenthesisOpenToken
+  | ParenthesisCloseToken
   | TrueToken
   | FalseToken
   | UnknownToken

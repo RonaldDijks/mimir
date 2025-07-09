@@ -90,6 +90,8 @@ export class Parser {
   private primaryExpression(): Expression {
     const token = this.current_token();
     switch (token.type) {
+      case TokenType.ParenthesisOpen:
+        return this.parenthesizedExpression();
       case TokenType.Number:
         return this.numberLiteralExpression();
       case TokenType.True:
@@ -98,6 +100,22 @@ export class Parser {
       default:
         throw new Error(`Unexpected token: ${token.type}`);
     }
+  }
+
+  private parenthesizedExpression(): Expression {
+    const parenthesisOpen = this.next_token();
+    if (parenthesisOpen.type !== TokenType.ParenthesisOpen) {
+      throw new Error(`Unexpected token: ${parenthesisOpen.type}`);
+    }
+    const expression = this.expression();
+    const parenthesisClose = this.next_token();
+    if (parenthesisClose.type !== TokenType.ParenthesisClose) {
+      throw new Error(`Unexpected token: ${parenthesisClose.type}`);
+    }
+    return {
+      type: ExpressionType.ParenthesizedExpression,
+      expression,
+    };
   }
 
   private numberLiteralExpression(): Expression {

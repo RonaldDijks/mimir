@@ -47,3 +47,14 @@ test("evaluate unary expression", () => {
     value: false,
   });
 });
+
+test("evaluate parenthesized expression", () => {
+  const tokens = tokenize("(1 + 2) * 3");
+  const ast = parse(tokens);
+  const evaluator = new Evaluator();
+  const result = evaluator.evaluate(ast);
+  expect(result).toStrictEqual({
+    type: ValueType.Number,
+    value: 9,
+  });
+});

@@ -11,6 +11,8 @@ import { booleanValue, numberValue, ValueType, type Value } from "./value";
 export class Evaluator {
   public evaluate(expression: Expression): Value {
     switch (expression.type) {
+      case ExpressionType.ParenthesizedExpression:
+        return this.evaluate(expression.expression);
       case ExpressionType.UnaryExpression:
         return this.evaluateUnaryExpression(expression);
       case ExpressionType.BinaryExpression:

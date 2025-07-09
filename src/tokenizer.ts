@@ -102,6 +102,14 @@ export class Tokenizer {
         type = TokenType.GreaterThan;
         this.current++;
         break;
+      case "(":
+        type = TokenType.ParenthesisOpen;
+        this.current++;
+        break;
+      case ")":
+        type = TokenType.ParenthesisClose;
+        this.current++;
+        break;
 
       case "0":
       case "1":
