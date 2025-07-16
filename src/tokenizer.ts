@@ -70,7 +70,7 @@ export class Tokenizer {
           this.current += 2;
           break;
         }
-        type = TokenType.Unknown;
+        type = TokenType.Equals;
         this.current++;
         break;
       case "!":
@@ -92,9 +92,7 @@ export class Tokenizer {
         this.current++;
         break;
       case ">":
-        console.log(this.peek(1));
         if (this.peek(1) === "=") {
-          console.log("greater than equals");
           type = TokenType.GreaterThanEquals;
           this.current += 2;
           break;

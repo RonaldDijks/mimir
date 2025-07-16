@@ -101,3 +101,20 @@ test("tokenize parenthesis", () => {
     { type: TokenType.EndOfFile, text: "\0", span: { start: 11, end: 11 } },
   ]);
 });
+
+test("tokenize let statement", () => {
+  const tokens = tokenize("let mut x = 1");
+  expect(tokens).toStrictEqual([
+    { type: TokenType.Let, text: "let", span: { start: 0, end: 3 } },
+    { type: TokenType.Mut, text: "mut", span: { start: 4, end: 7 } },
+    { type: TokenType.Identifier, text: "x", span: { start: 8, end: 9 } },
+    { type: TokenType.Equals, text: "=", span: { start: 10, end: 11 } },
+    {
+      type: TokenType.Number,
+      text: "1",
+      span: { start: 12, end: 13 },
+      value: 1,
+    },
+    { type: TokenType.EndOfFile, text: "\0", span: { start: 13, end: 13 } },
+  ]);
+});

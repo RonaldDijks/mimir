@@ -10,6 +10,7 @@ export enum TokenType {
 
   AmpersandAmpersand = "AmpersandAmpersand",
   PipePipe = "PipePipe",
+  Equals = "Equals",
   EqualsEquals = "EqualsEquals",
   Bang = "Bang",
   BangEquals = "BangEquals",
@@ -21,8 +22,11 @@ export enum TokenType {
   ParenthesisOpen = "ParenthesisOpen",
   ParenthesisClose = "ParenthesisClose",
 
+  Let = "Let",
+  Mut = "Mut",
   True = "True",
   False = "False",
+  Identifier = "Identifier",
 
   Unknown = "Unknown",
   EndOfFile = "EndOfFile",
@@ -46,6 +50,7 @@ export interface SlashToken extends Base<TokenType.Slash> {}
 export interface AmpersandAmpersandToken
   extends Base<TokenType.AmpersandAmpersand> {}
 export interface PipePipeToken extends Base<TokenType.PipePipe> {}
+export interface EqualsToken extends Base<TokenType.Equals> {}
 export interface EqualsEqualsToken extends Base<TokenType.EqualsEquals> {}
 export interface BangToken extends Base<TokenType.Bang> {}
 export interface BangEqualsToken extends Base<TokenType.BangEquals> {}
@@ -59,8 +64,11 @@ export interface ParenthesisOpenToken extends Base<TokenType.ParenthesisOpen> {}
 export interface ParenthesisCloseToken
   extends Base<TokenType.ParenthesisClose> {}
 
+export interface LetToken extends Base<TokenType.Let> {}
+export interface MutToken extends Base<TokenType.Mut> {}
 export interface TrueToken extends Base<TokenType.True> {}
 export interface FalseToken extends Base<TokenType.False> {}
+export interface IdentifierToken extends Base<TokenType.Identifier> {}
 
 export interface UnknownToken extends Base<TokenType.Unknown> {}
 export interface EndOfFileToken extends Base<TokenType.EndOfFile> {}
@@ -73,6 +81,7 @@ export type Token =
   | SlashToken
   | AmpersandAmpersandToken
   | PipePipeToken
+  | EqualsToken
   | EqualsEqualsToken
   | BangToken
   | BangEqualsToken
@@ -84,16 +93,28 @@ export type Token =
   | ParenthesisCloseToken
   | TrueToken
   | FalseToken
+  | LetToken
+  | MutToken
+  | IdentifierToken
   | UnknownToken
   | EndOfFileToken;
 
 export function keyword(
   input: string
-): TokenType.True | TokenType.False | TokenType.Unknown {
+):
+  | TokenType.True
+  | TokenType.False
+  | TokenType.Let
+  | TokenType.Mut
+  | TokenType.Identifier {
   if (input === "true") {
     return TokenType.True;
   } else if (input === "false") {
     return TokenType.False;
+  } else if (input === "let") {
+    return TokenType.Let;
+  } else if (input === "mut") {
+    return TokenType.Mut;
   }
-  return TokenType.Unknown;
+  return TokenType.Identifier;
 }

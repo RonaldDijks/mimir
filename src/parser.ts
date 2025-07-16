@@ -1,12 +1,25 @@
 import {
+  assignmentExpression,
   binaryExpression,
   booleanLiteralExpression,
+  expressionStatement,
+  identifierExpression,
+  letStatement,
   numberLiteralExpression,
   parenthesizedExpression,
   unaryExpression,
+  type AssignmentExpression,
   type Expression,
+  type ExpressionStatement,
+  type LetStatement,
+  type Statement,
 } from "./ast";
-import { TokenType, type Token } from "./token";
+import {
+  TokenType,
+  type Token,
+  type NumberToken,
+  type IdentifierToken,
+} from "./token";
 
 enum Precedence {
   Lowest = 0,
@@ -29,10 +42,6 @@ export class Parser {
 
   public constructor(private readonly tokens: Token[]) {}
 
-  public parse(): Expression {
-    return this.expression();
-  }
-
   private peek(offset: number = 0): Token {
     const index = this.index + offset;
     if (index >= this.tokens.length) {
@@ -49,14 +58,70 @@ export class Parser {
     return this.current_token().type;
   }
 
+  private expectToken<Type extends TokenType>(
+    expected: Type
+  ): Extract<Token, { type: Type }> {
+    const token = this.current_token();
+    if (token.type !== expected) {
+      throw new Error(
+        `Expected ${expected}, got ${token.type} at position ${token.span.start}`
+      );
+    }
+    return this.next_token() as Extract<Token, { type: Type }>;
+  }
+
   private next_token(): Token {
     const current = this.current_token();
     this.index++;
     return current;
   }
 
+  public parse(): Statement {
+    return this.statement();
+  }
+
+  private statement(): Statement {
+    switch (this.peek().type) {
+      case TokenType.Let:
+        return this.letStatement();
+      default:
+        return this.expressionStatement();
+    }
+  }
+
+  private expressionStatement(): ExpressionStatement {
+    const expression = this.expression();
+    return expressionStatement(expression);
+  }
+
   private expression(): Expression {
-    return this.binaryExpression(Precedence.Lowest);
+    return this.assignmentExpression();
+  }
+
+  private assignmentExpression(): Expression {
+    if (
+      this.peek().type === TokenType.Identifier &&
+      this.peek(1).type === TokenType.Equals
+    ) {
+      const left = this.expectToken(TokenType.Identifier);
+      const _equalsToken = this.expectToken(TokenType.Equals);
+      const right = this.expression();
+      return assignmentExpression(left, right);
+    } else {
+      return this.binaryExpression(Precedence.Lowest);
+    }
+  }
+
+  private letStatement(): LetStatement {
+    const _letToken = this.expectToken(TokenType.Let);
+    const mutToken =
+      this.peek().type === TokenType.Mut
+        ? this.expectToken(TokenType.Mut)
+        : null;
+    const identifier = this.expectToken(TokenType.Identifier);
+    const _equalsToken = this.expectToken(TokenType.Equals);
+    const expression = this.expression();
+    return letStatement(mutToken !== null, identifier, expression);
   }
 
   private binaryExpression(parentPrecedence: Precedence): Expression {
@@ -95,38 +160,38 @@ export class Parser {
       case TokenType.True:
       case TokenType.False:
         return this.booleanLiteralExpression();
+      case TokenType.Identifier:
+        return this.identifierExpression();
       default:
         throw new Error(`Unexpected token: ${token.type}`);
     }
   }
 
   private parenthesizedExpression(): Expression {
-    const parenthesisOpen = this.next_token();
-    if (parenthesisOpen.type !== TokenType.ParenthesisOpen) {
-      throw new Error(`Unexpected token: ${parenthesisOpen.type}`);
-    }
+    this.expectToken(TokenType.ParenthesisOpen);
     const expression = this.expression();
-    const parenthesisClose = this.next_token();
-    if (parenthesisClose.type !== TokenType.ParenthesisClose) {
-      throw new Error(`Unexpected token: ${parenthesisClose.type}`);
-    }
+    this.expectToken(TokenType.ParenthesisClose);
     return parenthesizedExpression(expression);
   }
 
   private numberLiteralExpression(): Expression {
-    const token = this.next_token();
-    if (token.type !== TokenType.Number) {
-      throw new Error(`Unexpected token: ${token.type}`);
-    }
+    const token = this.expectToken(TokenType.Number) as NumberToken;
     return numberLiteralExpression(token.value);
   }
 
   private booleanLiteralExpression(): Expression {
     const token = this.next_token();
     if (token.type !== TokenType.True && token.type !== TokenType.False) {
-      throw new Error(`Unexpected token: ${token.type}`);
+      throw new Error(
+        `Expected boolean literal, got ${token.type} at position ${token.span.start}`
+      );
     }
     return booleanLiteralExpression(token.type === TokenType.True);
+  }
+
+  private identifierExpression(): Expression {
+    const token = this.expectToken(TokenType.Identifier) as IdentifierToken;
+    return identifierExpression(token);
   }
 }
 

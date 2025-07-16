@@ -1,22 +1,146 @@
 import { assertNever } from "./assert";
 import {
   ExpressionType,
+  StatementType,
+  type AssignmentExpression,
   type BinaryExpression,
   type Expression,
+  type IdentifierExpression,
+  type LetStatement,
+  type Statement,
   type UnaryExpression,
 } from "./ast";
 import { TokenType } from "./token";
 import { booleanValue, numberValue, ValueType, type Value } from "./value";
 
+// Utility functions for type checking and operations
+function isNumber(
+  value: Value
+): value is { type: ValueType.Number; value: number } {
+  return value.type === ValueType.Number;
+}
+
+function isBoolean(
+  value: Value
+): value is { type: ValueType.Boolean; value: boolean } {
+  return value.type === ValueType.Boolean;
+}
+
+function performNumericOperation(
+  left: number,
+  right: number,
+  operator: TokenType
+): Value {
+  switch (operator) {
+    case TokenType.Plus:
+      return numberValue(left + right);
+    case TokenType.Minus:
+      return numberValue(left - right);
+    case TokenType.Asterisk:
+      return numberValue(left * right);
+    case TokenType.Slash:
+      if (right === 0) {
+        throw new Error("Division by zero");
+      }
+      return numberValue(left / right);
+    case TokenType.EqualsEquals:
+      return booleanValue(left === right);
+    case TokenType.BangEquals:
+      return booleanValue(left !== right);
+    case TokenType.LessThan:
+      return booleanValue(left < right);
+    case TokenType.LessThanEquals:
+      return booleanValue(left <= right);
+    case TokenType.GreaterThan:
+      return booleanValue(left > right);
+    case TokenType.GreaterThanEquals:
+      return booleanValue(left >= right);
+    default:
+      throw new Error(`Unsupported numeric operator: ${operator}`);
+  }
+}
+
+function performBooleanOperation(
+  left: boolean,
+  right: boolean,
+  operator: TokenType
+): Value {
+  switch (operator) {
+    case TokenType.AmpersandAmpersand:
+      return booleanValue(left && right);
+    case TokenType.PipePipe:
+      return booleanValue(left || right);
+    case TokenType.EqualsEquals:
+      return booleanValue(left === right);
+    case TokenType.BangEquals:
+      return booleanValue(left !== right);
+    default:
+      throw new Error(`Unsupported boolean operator: ${operator}`);
+  }
+}
+
+class Environment {
+  private values: Map<string, Value> = new Map();
+  private mutability: Map<string, boolean> = new Map();
+
+  public set(name: string, value: Value, mutable: boolean = false) {
+    this.values.set(name, value);
+    this.mutability.set(name, mutable);
+  }
+
+  public get(name: string): Value | undefined {
+    return this.values.get(name);
+  }
+
+  public update(name: string, value: Value): void {
+    if (!this.values.has(name)) {
+      throw new Error(`Undefined variable: ${name}`);
+    }
+    if (!this.mutability.get(name)) {
+      throw new Error(`Cannot assign to immutable variable: ${name}`);
+    }
+    this.values.set(name, value);
+  }
+
+  public isMutable(name: string): boolean {
+    return this.mutability.get(name) ?? false;
+  }
+}
+
 export class Evaluator {
-  public evaluate(expression: Expression): Value {
+  private environment: Environment = new Environment();
+
+  public evaluate(statement: Statement): Value {
+    return this.evaluateStatement(statement);
+  }
+
+  public evaluateStatement(statement: Statement): Value {
+    switch (statement.type) {
+      case StatementType.ExpressionStatement:
+        return this.evaluateExpression(statement.expression);
+      case StatementType.LetStatement:
+        return this.evaluateLetStatement(statement);
+    }
+  }
+
+  private evaluateLetStatement(statement: LetStatement): Value {
+    const value = this.evaluateExpression(statement.value);
+    this.environment.set(statement.name.text, value, statement.mut);
+    return value;
+  }
+
+  public evaluateExpression(expression: Expression): Value {
     switch (expression.type) {
+      case ExpressionType.AssignmentExpression:
+        return this.evaluateAssignmentExpression(expression);
       case ExpressionType.ParenthesizedExpression:
-        return this.evaluate(expression.expression);
+        return this.evaluateExpression(expression.expression);
       case ExpressionType.UnaryExpression:
         return this.evaluateUnaryExpression(expression);
       case ExpressionType.BinaryExpression:
         return this.evaluateBinaryExpression(expression);
+      case ExpressionType.IdentifierExpression:
+        return this.evaluateIdentifierExpression(expression);
       case ExpressionType.NumberLiteralExpression:
         return numberValue(expression.value);
       case ExpressionType.BooleanLiteralExpression:
@@ -26,12 +150,26 @@ export class Evaluator {
     }
   }
 
+  private evaluateAssignmentExpression(
+    expression: AssignmentExpression
+  ): Value {
+    const value = this.evaluateExpression(expression.right);
+    this.environment.update(expression.left.text, value);
+    return value;
+  }
+
   private evaluateUnaryExpression(expression: UnaryExpression): Value {
-    const right = this.evaluate(expression.right);
+    const right = this.evaluateExpression(expression.right);
     switch (expression.operator.type) {
       case TokenType.Bang:
+        if (!isBoolean(right)) {
+          throw new Error(`Cannot apply '!' operator to ${right.type}`);
+        }
         return booleanValue(!right.value);
       case TokenType.Minus:
+        if (!isNumber(right)) {
+          throw new Error(`Cannot apply '-' operator to ${right.type}`);
+        }
         return numberValue(-right.value);
       default:
         throw new Error(
@@ -41,49 +179,37 @@ export class Evaluator {
   }
 
   private evaluateBinaryExpression(expression: BinaryExpression): Value {
-    const left = this.evaluate(expression.left);
-    const right = this.evaluate(expression.right);
+    const left = this.evaluateExpression(expression.left);
+    const right = this.evaluateExpression(expression.right);
 
-    if (left.type === ValueType.Number && right.type === ValueType.Number) {
-      switch (expression.operator.type) {
-        case TokenType.Plus:
-          return numberValue(left.value + right.value);
-        case TokenType.Minus:
-          return numberValue(left.value - right.value);
-        case TokenType.Asterisk:
-          return numberValue(left.value * right.value);
-        case TokenType.Slash:
-          return numberValue(left.value / right.value);
-        case TokenType.EqualsEquals:
-          return booleanValue(left.value === right.value);
-        case TokenType.BangEquals:
-          return booleanValue(left.value !== right.value);
-        case TokenType.LessThan:
-          return booleanValue(left.value < right.value);
-        case TokenType.LessThanEquals:
-          return booleanValue(left.value <= right.value);
-        case TokenType.GreaterThan:
-          return booleanValue(left.value > right.value);
-        case TokenType.GreaterThanEquals:
-          return booleanValue(left.value >= right.value);
-      }
+    if (isNumber(left) && isNumber(right)) {
+      return performNumericOperation(
+        left.value,
+        right.value,
+        expression.operator.type
+      );
     }
 
-    if (left.type === ValueType.Boolean && right.type === ValueType.Boolean) {
-      switch (expression.operator.type) {
-        case TokenType.AmpersandAmpersand:
-          return booleanValue(left.value && right.value);
-        case TokenType.PipePipe:
-          return booleanValue(left.value || right.value);
-        case TokenType.EqualsEquals:
-          return booleanValue(left.value === right.value);
-        case TokenType.BangEquals:
-          return booleanValue(left.value !== right.value);
-      }
+    if (isBoolean(left) && isBoolean(right)) {
+      return performBooleanOperation(
+        left.value,
+        right.value,
+        expression.operator.type
+      );
     }
 
     throw new Error(
-      `Unexpected binary operator type: ${expression.operator.type}`
+      `Unsupported operation: ${left.type} ${expression.operator.type} ${right.type}`
     );
+  }
+
+  private evaluateIdentifierExpression(
+    expression: IdentifierExpression
+  ): Value {
+    const value = this.environment.get(expression.name.text);
+    if (value === undefined) {
+      throw new Error(`Undefined variable: ${expression.name.text}`);
+    }
+    return value;
   }
 }
