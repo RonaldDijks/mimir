@@ -1,4 +1,16 @@
-import type { IdentifierToken, Token } from "./token";
+import type { EndOfFileToken, IdentifierToken, Token } from "./token";
+
+export interface SourceFile {
+  statements: Statement[];
+  endOfFile: EndOfFileToken;
+}
+
+export function sourceFile(
+  statements: Statement[],
+  endOfFile: EndOfFileToken
+): SourceFile {
+  return { statements, endOfFile };
+}
 
 export type Statement = ExpressionStatement | LetStatement;
 

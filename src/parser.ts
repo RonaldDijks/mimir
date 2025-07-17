@@ -7,11 +7,12 @@ import {
   letStatement,
   numberLiteralExpression,
   parenthesizedExpression,
+  sourceFile,
   unaryExpression,
-  type AssignmentExpression,
   type Expression,
   type ExpressionStatement,
   type LetStatement,
+  type SourceFile,
   type Statement,
 } from "./ast";
 import {
@@ -76,8 +77,13 @@ export class Parser {
     return current;
   }
 
-  public parse(): Statement {
-    return this.statement();
+  public parse(): SourceFile {
+    const statements: Statement[] = [];
+    while (this.peek().type !== TokenType.EndOfFile) {
+      statements.push(this.statement());
+    }
+    const endOfFile = this.expectToken(TokenType.EndOfFile);
+    return sourceFile(statements, endOfFile);
   }
 
   private statement(): Statement {

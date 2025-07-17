@@ -22,7 +22,7 @@ export class Tokenizer {
   }
 
   public next(): Token {
-    while (this.input[this.current] === " ") {
+    while (isWhitespace(this.input[this.current]!)) {
       this.current++;
     }
 
@@ -190,4 +190,8 @@ export class Tokenizer {
 
     return tokens;
   }
+}
+
+function isWhitespace(char: string): boolean {
+  return char === " " || char === "\n" || char === "\r" || char === "\t";
 }

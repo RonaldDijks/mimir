@@ -9,17 +9,22 @@ import {
   StatementType,
   letStatement,
   assignmentExpression,
+  sourceFile,
 } from "./ast";
 import { TokenType, type Token } from "./token";
 import { Parser } from "./parser";
 
 function parseExpression(tokens: Token[]) {
   const parser = new Parser(tokens);
-  const ast = parser.parse();
-  if (ast.type !== StatementType.ExpressionStatement) {
+  const sourceFile = parser.parse();
+  if (sourceFile.statements.length !== 1) {
+    throw new Error("Expected 1 statement");
+  }
+  const statement = sourceFile.statements[0]!;
+  if (statement.type !== StatementType.ExpressionStatement) {
     throw new Error("Expected expression statement");
   }
-  return ast.expression;
+  return statement.expression;
 }
 
 test("parse simple expression", () => {
@@ -140,19 +145,25 @@ test("parse parenthesized expression", () => {
 test("parse let expression", () => {
   const tokens = tokenize("let mut abc = 123");
   const parser = new Parser(tokens);
-  const ast = parser.parse();
-  if (ast.type !== StatementType.LetStatement) {
-    throw new Error("Expected let statement");
-  }
-  expect(ast).toStrictEqual(
-    letStatement(
-      true,
+  const file = parser.parse();
+  expect(file).toStrictEqual(
+    sourceFile(
+      [
+        letStatement(
+          true,
+          {
+            type: TokenType.Identifier,
+            text: "abc",
+            span: { start: 8, end: 11 },
+          },
+          numberLiteralExpression(123)
+        ),
+      ],
       {
-        type: TokenType.Identifier,
-        text: "abc",
-        span: { start: 8, end: 11 },
-      },
-      numberLiteralExpression(123)
+        type: TokenType.EndOfFile,
+        text: "\0",
+        span: { start: 17, end: 17 },
+      }
     )
   );
 });

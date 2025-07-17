@@ -1,6 +1,7 @@
 export enum ValueType {
   Number = "number",
   Boolean = "boolean",
+  Nil = "nil",
 }
 
 export interface NumberValue {
@@ -27,4 +28,12 @@ export function booleanValue(value: boolean): BooleanValue {
   };
 }
 
-export type Value = NumberValue | BooleanValue;
+export interface NilValue {
+  type: ValueType.Nil;
+}
+
+export const NIL: NilValue = {
+  type: ValueType.Nil,
+};
+
+export type Value = NumberValue | BooleanValue | NilValue;

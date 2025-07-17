@@ -2,12 +2,17 @@ import { test, expect } from "bun:test";
 import { tokenize } from "./tokenizer";
 import { parse } from "./parser";
 import { Evaluator } from "./evaluator";
-import { ValueType } from "./value";
+import { NIL, ValueType, type Value } from "./value";
+import { dedent } from "./dedent";
 
 function evaluate(tokens: string, evaluator?: Evaluator) {
   evaluator ??= new Evaluator();
   const ast = parse(tokenize(tokens));
-  return evaluator.evaluate(ast);
+  let result: Value = NIL;
+  for (const statement of ast.statements) {
+    result = evaluator.evaluate(statement);
+  }
+  return result;
 }
 
 test("evaluate simple expression", () => {
@@ -78,6 +83,19 @@ test("evaluate assignment expression", () => {
   });
   const result2 = evaluate("a", evaluator);
   expect(result2).toStrictEqual({
+    type: ValueType.Number,
+    value: 3,
+  });
+});
+
+test("evaluate multiple statements", () => {
+  const input = dedent`
+    let a = 1
+    let b = 2
+    a + b
+  `;
+  const result = evaluate(input);
+  expect(result).toStrictEqual({
     type: ValueType.Number,
     value: 3,
   });
