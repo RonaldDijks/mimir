@@ -1,6 +1,7 @@
 import { test, expect } from "bun:test";
 import { tokenize } from "./tokenizer";
 import { TokenType } from "./token";
+import { dedent } from "./dedent";
 
 test("tokenize simple expression", () => {
   const tokens = tokenize("1 + 2 * 3");
@@ -136,5 +137,71 @@ test("tokenize strings", () => {
       span: { start: 11, end: 19 },
     },
     { type: TokenType.EndOfFile, text: "\0", span: { start: 19, end: 19 } },
+  ]);
+});
+
+test("tokenize if expressions", () => {
+  const input = dedent`
+    if (true) {
+      1
+    } else if (false) {
+      2
+    } else {
+      3
+    }
+  `;
+  const tokens = tokenize(input);
+  expect(tokens).toStrictEqual([
+    { type: TokenType.If, text: "if", span: { start: 0, end: 2 } },
+    { type: TokenType.ParenthesisOpen, text: "(", span: { start: 3, end: 4 } },
+    { type: TokenType.True, text: "true", span: { start: 4, end: 8 } },
+    {
+      type: TokenType.ParenthesisClose,
+      text: ")",
+      span: { start: 8, end: 9 },
+    },
+    { type: TokenType.BraceOpen, text: "{", span: { start: 10, end: 11 } },
+    {
+      type: TokenType.Number,
+      text: "1",
+      span: { start: 14, end: 15 },
+      value: 1,
+    },
+    { type: TokenType.BraceClose, text: "}", span: { start: 16, end: 17 } },
+    { type: TokenType.Else, text: "else", span: { start: 18, end: 22 } },
+    { type: TokenType.If, text: "if", span: { start: 23, end: 25 } },
+    {
+      type: TokenType.ParenthesisOpen,
+      text: "(",
+      span: { start: 26, end: 27 },
+    },
+    { type: TokenType.False, text: "false", span: { start: 27, end: 32 } },
+    {
+      type: TokenType.ParenthesisClose,
+      text: ")",
+      span: { start: 32, end: 33 },
+    },
+    { type: TokenType.BraceOpen, text: "{", span: { start: 34, end: 35 } },
+    {
+      type: TokenType.Number,
+      text: "2",
+      span: { start: 38, end: 39 },
+      value: 2,
+    },
+    { type: TokenType.BraceClose, text: "}", span: { start: 40, end: 41 } },
+    { type: TokenType.Else, text: "else", span: { start: 42, end: 46 } },
+    {
+      type: TokenType.BraceOpen,
+      text: "{",
+      span: { start: 47, end: 48 },
+    },
+    {
+      type: TokenType.Number,
+      text: "3",
+      span: { start: 51, end: 52 },
+      value: 3,
+    },
+    { type: TokenType.BraceClose, text: "}", span: { start: 53, end: 54 } },
+    { type: TokenType.EndOfFile, text: "\0", span: { start: 54, end: 54 } },
   ]);
 });

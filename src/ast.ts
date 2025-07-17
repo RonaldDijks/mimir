@@ -1,4 +1,5 @@
 import type { EndOfFileToken, IdentifierToken, Token } from "./token";
+import type { Span } from "./span";
 
 export interface SourceFile {
   statements: Statement[];
@@ -51,6 +52,8 @@ export type Expression =
   | BinaryExpression
   | IdentifierExpression
   | ParenthesizedExpression
+  | BlockExpression
+  | IfExpression
   | BooleanLiteralExpression
   | NumberLiteralExpression
   | StringLiteralExpression;
@@ -61,6 +64,8 @@ export enum ExpressionType {
   BinaryExpression = "BinaryExpression",
   IdentifierExpression = "IdentifierExpression",
   ParenthesizedExpression = "ParenthesizedExpression",
+  BlockExpression = "BlockExpression",
+  IfExpression = "IfExpression",
   BooleanLiteralExpression = "BooleanLiteralExpression",
   NumberLiteralExpression = "NumberLiteralExpression",
   StringLiteralExpression = "StringLiteralExpression",
@@ -127,6 +132,39 @@ export function parenthesizedExpression(
   expression: Expression
 ): ParenthesizedExpression {
   return { type: ExpressionType.ParenthesizedExpression, expression };
+}
+
+export interface BlockExpression {
+  type: ExpressionType.BlockExpression;
+  block: Block;
+}
+
+export function blockExpression(statements: Statement[]): BlockExpression {
+  return { type: ExpressionType.BlockExpression, block: { statements } };
+}
+
+export interface Block {
+  statements: Statement[];
+}
+
+export interface IfExpression {
+  type: ExpressionType.IfExpression;
+  condition: Expression;
+  then_branch: Block;
+  else_branch?: IfExpression | BlockExpression;
+}
+
+export function ifExpression(
+  condition: Expression,
+  then_branch: Block,
+  else_branch?: IfExpression | BlockExpression
+): IfExpression {
+  return {
+    type: ExpressionType.IfExpression,
+    condition,
+    then_branch,
+    else_branch,
+  };
 }
 
 export interface BooleanLiteralExpression {

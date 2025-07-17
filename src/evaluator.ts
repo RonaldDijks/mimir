@@ -4,8 +4,11 @@ import {
   StatementType,
   type AssignmentExpression,
   type BinaryExpression,
+  type Block,
+  type BlockExpression,
   type Expression,
   type IdentifierExpression,
+  type IfExpression,
   type LetStatement,
   type Statement,
   type UnaryExpression,
@@ -16,6 +19,7 @@ import {
   isBooleanValue,
   isNumberValue,
   isStringValue,
+  NIL,
   numberValue,
   stringValue,
   type Value,
@@ -117,6 +121,8 @@ class Environment {
 
 export class Evaluator {
   private environment: Environment = new Environment();
+  private readonly MAX_CALL_DEPTH = 1000;
+  private callDepth = 0;
 
   public evaluate(statement: Statement): Value {
     return this.evaluateStatement(statement);
@@ -149,6 +155,10 @@ export class Evaluator {
         return this.evaluateBinaryExpression(expression);
       case ExpressionType.IdentifierExpression:
         return this.evaluateIdentifierExpression(expression);
+      case ExpressionType.IfExpression:
+        return this.evaluateIfExpression(expression);
+      case ExpressionType.BlockExpression:
+        return this.evaluateBlockExpression(expression);
       case ExpressionType.NumberLiteralExpression:
         return numberValue(expression.value);
       case ExpressionType.BooleanLiteralExpression:
@@ -227,6 +237,61 @@ export class Evaluator {
     const value = this.environment.get(expression.name.text);
     if (value === undefined) {
       throw new Error(`Undefined variable: ${expression.name.text}`);
+    }
+    return value;
+  }
+
+  private evaluateIfExpression(expression: IfExpression): Value {
+    // Protect against stack overflow from deeply nested if expressions
+    this.callDepth++;
+    if (this.callDepth > this.MAX_CALL_DEPTH) {
+      throw new Error(
+        `Maximum call depth exceeded. Consider reducing the nesting depth of your if expressions.`
+      );
+    }
+
+    try {
+      const condition = this.evaluateExpression(expression.condition);
+
+      // More specific error message for non-boolean conditions
+      if (!isBooleanValue(condition)) {
+        throw new Error(
+          `If condition must be a boolean value, got ${condition.type}. ` +
+            `Consider using comparison operators (==, !=, <, >, etc.) to create a boolean condition.`
+        );
+      }
+
+      if (condition.value) {
+        return this.evaluateBlock(expression.then_branch);
+      }
+
+      if (expression.else_branch) {
+        if (expression.else_branch.type === ExpressionType.IfExpression) {
+          return this.evaluateIfExpression(expression.else_branch);
+        } else {
+          return this.evaluateBlockExpression(expression.else_branch);
+        }
+      }
+
+      return NIL;
+    } finally {
+      this.callDepth--;
+    }
+  }
+
+  private evaluateBlockExpression(expression: BlockExpression): Value {
+    return this.evaluateBlock(expression.block);
+  }
+
+  private evaluateBlock(block: Block): Value {
+    // Handle empty blocks gracefully
+    if (block.statements.length === 0) {
+      return NIL;
+    }
+
+    let value: Value = NIL;
+    for (const statement of block.statements) {
+      value = this.evaluateStatement(statement);
     }
     return value;
   }

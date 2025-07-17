@@ -11,9 +11,13 @@ import {
   assignmentExpression,
   sourceFile,
   stringLiteralExpression,
+  ifExpression,
+  expressionStatement,
+  blockExpression,
 } from "./ast";
 import { TokenType, type Token } from "./token";
 import { Parser } from "./parser";
+import { dedent } from "./dedent";
 
 function parseExpression(tokens: Token[]) {
   const parser = new Parser(tokens);
@@ -196,4 +200,77 @@ test("parse assignment expression", () => {
       numberLiteralExpression(123)
     )
   );
+});
+
+test("parse if expression", () => {
+  const input = dedent`
+    if true {
+      1
+    } else if true {
+      2
+    } else {
+      3
+    }
+  `;
+  const tokens = tokenize(input);
+  const ast = parseExpression(tokens);
+  expect(ast).toStrictEqual(
+    ifExpression(
+      booleanLiteralExpression(true),
+      { statements: [expressionStatement(numberLiteralExpression(1))] },
+      ifExpression(
+        booleanLiteralExpression(true),
+        { statements: [expressionStatement(numberLiteralExpression(2))] },
+        blockExpression([expressionStatement(numberLiteralExpression(3))])
+      )
+    )
+  );
+});
+
+test("parse if expression without else", () => {
+  const input = "if true { 1 }";
+  const tokens = tokenize(input);
+  const ast = parseExpression(tokens);
+  expect(ast).toStrictEqual(
+    ifExpression(
+      booleanLiteralExpression(true),
+      { statements: [expressionStatement(numberLiteralExpression(1))] },
+      undefined
+    )
+  );
+});
+
+test("parse if expression with only else", () => {
+  const input = "if false { 1 } else { 2 }";
+  const tokens = tokenize(input);
+  const ast = parseExpression(tokens);
+  expect(ast).toStrictEqual(
+    ifExpression(
+      booleanLiteralExpression(false),
+      { statements: [expressionStatement(numberLiteralExpression(1))] },
+      blockExpression([expressionStatement(numberLiteralExpression(2))])
+    )
+  );
+});
+
+test("parser error for empty if block", () => {
+  const input = "if true {}";
+  const tokens = tokenize(input);
+  expect(() => parseExpression(tokens)).toThrow(
+    "Empty if block is not allowed at position 8. Add at least one statement."
+  );
+});
+
+test("parser error for empty else block", () => {
+  const input = "if true { 1 } else {}";
+  const tokens = tokenize(input);
+  expect(() => parseExpression(tokens)).toThrow(
+    "Empty else block is not allowed at position 19. Add at least one statement."
+  );
+});
+
+test("parser error for missing condition", () => {
+  const input = "if { 1 }";
+  const tokens = tokenize(input);
+  expect(() => parseExpression(tokens)).toThrow("Unexpected token: BraceOpen");
 });

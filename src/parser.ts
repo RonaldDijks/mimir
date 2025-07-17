@@ -1,27 +1,29 @@
 import {
   assignmentExpression,
   binaryExpression,
+  blockExpression,
   booleanLiteralExpression,
   expressionStatement,
+  ExpressionType,
   identifierExpression,
+  ifExpression,
   letStatement,
   numberLiteralExpression,
   parenthesizedExpression,
   sourceFile,
   stringLiteralExpression,
   unaryExpression,
+  type Block,
+  type BlockExpression,
   type Expression,
   type ExpressionStatement,
+  type IfExpression,
   type LetStatement,
   type SourceFile,
   type Statement,
 } from "./ast";
-import {
-  TokenType,
-  type Token,
-  type NumberToken,
-  type IdentifierToken,
-} from "./token";
+import { TokenType, type Token, type NumberToken } from "./token";
+import { mergeSpan } from "./span";
 
 enum Precedence {
   Lowest = 0,
@@ -171,6 +173,8 @@ export class Parser {
         return this.identifierExpression();
       case TokenType.StringLiteral:
         return this.stringLiteralExpression();
+      case TokenType.If:
+        return this.ifExpression();
       default:
         throw new Error(`Unexpected token: ${token.type}`);
     }
@@ -206,6 +210,55 @@ export class Parser {
   private stringLiteralExpression(): Expression {
     const token = this.expectToken(TokenType.StringLiteral);
     return stringLiteralExpression(token.value);
+  }
+
+  private ifExpression(): IfExpression {
+    const ifToken = this.expectToken(TokenType.If);
+    const condition = this.expression();
+
+    const openBrace = this.expectToken(TokenType.BraceOpen);
+    if (this.peek().type === TokenType.BraceClose) {
+      throw new Error(
+        `Empty if block is not allowed at position ${openBrace.span.start}. Add at least one statement.`
+      );
+    }
+
+    const then_branch = this.block();
+    const closeBrace = this.expectToken(TokenType.BraceClose);
+
+    let else_branch: IfExpression | BlockExpression | undefined;
+    let endSpan = closeBrace.span;
+
+    if (this.peek().type === TokenType.Else) {
+      const elseToken = this.expectToken(TokenType.Else);
+      if (this.peek().type === TokenType.If) {
+        else_branch = this.ifExpression();
+      } else {
+        const elseOpenBrace = this.expectToken(TokenType.BraceOpen);
+        if (this.peek().type === TokenType.BraceClose) {
+          throw new Error(
+            `Empty else block is not allowed at position ${elseOpenBrace.span.start}. Add at least one statement.`
+          );
+        }
+        const elseBlock = this.block();
+        const elseCloseBrace = this.expectToken(TokenType.BraceClose);
+        else_branch = {
+          type: ExpressionType.BlockExpression,
+          block: elseBlock,
+        };
+        endSpan = elseCloseBrace.span;
+      }
+    }
+
+    return ifExpression(condition, then_branch, else_branch);
+  }
+
+  private block(): Block {
+    const statements: Statement[] = [];
+    while (this.peek().type !== TokenType.BraceClose) {
+      statements.push(this.statement());
+    }
+    return { statements };
   }
 }
 

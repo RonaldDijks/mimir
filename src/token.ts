@@ -23,12 +23,16 @@ export enum TokenType {
 
   ParenthesisOpen = "ParenthesisOpen",
   ParenthesisClose = "ParenthesisClose",
+  BraceOpen = "BraceOpen",
+  BraceClose = "BraceClose",
 
   Let = "Let",
   Mut = "Mut",
   True = "True",
   False = "False",
   Identifier = "Identifier",
+  If = "If",
+  Else = "Else",
 
   Unknown = "Unknown",
   EndOfFile = "EndOfFile",
@@ -70,12 +74,16 @@ export interface GreaterThanEqualsToken
 export interface ParenthesisOpenToken extends Base<TokenType.ParenthesisOpen> {}
 export interface ParenthesisCloseToken
   extends Base<TokenType.ParenthesisClose> {}
+export interface BraceOpenToken extends Base<TokenType.BraceOpen> {}
+export interface BraceCloseToken extends Base<TokenType.BraceClose> {}
 
 export interface LetToken extends Base<TokenType.Let> {}
 export interface MutToken extends Base<TokenType.Mut> {}
 export interface TrueToken extends Base<TokenType.True> {}
 export interface FalseToken extends Base<TokenType.False> {}
 export interface IdentifierToken extends Base<TokenType.Identifier> {}
+export interface IfToken extends Base<TokenType.If> {}
+export interface ElseToken extends Base<TokenType.Else> {}
 
 export interface UnknownToken extends Base<TokenType.Unknown> {}
 export interface EndOfFileToken extends Base<TokenType.EndOfFile> {}
@@ -100,22 +108,27 @@ export type Token =
   | GreaterThanEqualsToken
   | ParenthesisOpenToken
   | ParenthesisCloseToken
+  | BraceOpenToken
+  | BraceCloseToken
   | TrueToken
   | FalseToken
   | LetToken
   | MutToken
   | IdentifierToken
+  | IfToken
+  | ElseToken
   | UnknownToken
   | EndOfFileToken;
 
-export function keyword(
-  input: string
-):
+type KeywordType =
   | TokenType.True
   | TokenType.False
   | TokenType.Let
   | TokenType.Mut
-  | TokenType.Identifier {
+  | TokenType.If
+  | TokenType.Else;
+
+export function keyword(input: string): KeywordType | TokenType.Identifier {
   if (input === "true") {
     return TokenType.True;
   } else if (input === "false") {
@@ -124,6 +137,10 @@ export function keyword(
     return TokenType.Let;
   } else if (input === "mut") {
     return TokenType.Mut;
+  } else if (input === "if") {
+    return TokenType.If;
+  } else if (input === "else") {
+    return TokenType.Else;
   }
   return TokenType.Identifier;
 }

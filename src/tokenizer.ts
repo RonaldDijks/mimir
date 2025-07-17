@@ -113,6 +113,14 @@ export class Tokenizer {
         type = TokenType.ParenthesisClose;
         this.current++;
         break;
+      case "{":
+        type = TokenType.BraceOpen;
+        this.current++;
+        break;
+      case "}":
+        type = TokenType.BraceClose;
+        this.current++;
+        break;
       case '"':
         return this.string();
 
@@ -137,11 +145,7 @@ export class Tokenizer {
 
       default:
         if (this.peek().match(/[a-z]/i)) {
-          while (this.peek().match(/[a-z]/i)) {
-            this.current++;
-          }
-          type = keyword(this.input.slice(this.start, this.current));
-          break;
+          return this.keyword();
         } else {
           type = TokenType.Unknown;
           this.current++;
@@ -206,6 +210,20 @@ export class Tokenizer {
       value,
     };
   }
+
+  private keyword(): Token {
+    const start = this.current;
+    while (this.peek().match(/[a-z]/i)) {
+      this.current++;
+    }
+    const type = keyword(this.input.slice(start, this.current));
+    return {
+      type,
+      text: this.input.slice(start, this.current),
+      span: span(start, this.current),
+    };
+  }
+
   public all(): Token[] {
     const tokens: Token[] = [];
 
