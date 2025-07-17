@@ -118,3 +118,23 @@ test("tokenize let statement", () => {
     { type: TokenType.EndOfFile, text: "\0", span: { start: 13, end: 13 } },
   ]);
 });
+
+test("tokenize strings", () => {
+  const tokens = tokenize('"hello" ++ " world"');
+  expect(tokens).toStrictEqual([
+    {
+      type: TokenType.StringLiteral,
+      text: '"hello"',
+      value: "hello",
+      span: { start: 0, end: 7 },
+    },
+    { type: TokenType.PlusPlus, text: "++", span: { start: 8, end: 10 } },
+    {
+      type: TokenType.StringLiteral,
+      text: '" world"',
+      value: " world",
+      span: { start: 11, end: 19 },
+    },
+    { type: TokenType.EndOfFile, text: "\0", span: { start: 19, end: 19 } },
+  ]);
+});

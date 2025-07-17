@@ -10,6 +10,7 @@ import {
   letStatement,
   assignmentExpression,
   sourceFile,
+  stringLiteralExpression,
 } from "./ast";
 import { TokenType, type Token } from "./token";
 import { Parser } from "./parser";
@@ -83,6 +84,24 @@ test("parse boolean expression", () => {
       ),
       booleanLiteralExpression(true),
       { type: TokenType.PipePipe, text: "||", span: { start: 14, end: 16 } }
+    )
+  );
+});
+
+test("parse string literal expression", () => {
+  const tokens = tokenize('"hello"');
+  const ast = parseExpression(tokens);
+  expect(ast).toStrictEqual(stringLiteralExpression("hello"));
+});
+
+test("parse string concatenation expression", () => {
+  const tokens = tokenize('"hello" ++ " world"');
+  const ast = parseExpression(tokens);
+  expect(ast).toStrictEqual(
+    binaryExpression(
+      stringLiteralExpression("hello"),
+      stringLiteralExpression(" world"),
+      { type: TokenType.PlusPlus, text: "++", span: { start: 8, end: 10 } }
     )
   );
 });

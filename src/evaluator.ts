@@ -11,20 +11,15 @@ import {
   type UnaryExpression,
 } from "./ast";
 import { TokenType } from "./token";
-import { booleanValue, numberValue, ValueType, type Value } from "./value";
-
-// Utility functions for type checking and operations
-function isNumber(
-  value: Value
-): value is { type: ValueType.Number; value: number } {
-  return value.type === ValueType.Number;
-}
-
-function isBoolean(
-  value: Value
-): value is { type: ValueType.Boolean; value: boolean } {
-  return value.type === ValueType.Boolean;
-}
+import {
+  booleanValue,
+  isBooleanValue,
+  isNumberValue,
+  isStringValue,
+  numberValue,
+  stringValue,
+  type Value,
+} from "./value";
 
 function performNumericOperation(
   left: number,
@@ -76,6 +71,19 @@ function performBooleanOperation(
       return booleanValue(left !== right);
     default:
       throw new Error(`Unsupported boolean operator: ${operator}`);
+  }
+}
+
+function performStringOperation(
+  left: string,
+  right: string,
+  operator: TokenType
+): Value {
+  switch (operator) {
+    case TokenType.PlusPlus:
+      return stringValue(left + right);
+    default:
+      throw new Error(`Unsupported string operator: ${operator}`);
   }
 }
 
@@ -145,6 +153,8 @@ export class Evaluator {
         return numberValue(expression.value);
       case ExpressionType.BooleanLiteralExpression:
         return booleanValue(expression.value);
+      case ExpressionType.StringLiteralExpression:
+        return stringValue(expression.value);
       default:
         assertNever(expression);
     }
@@ -162,12 +172,12 @@ export class Evaluator {
     const right = this.evaluateExpression(expression.right);
     switch (expression.operator.type) {
       case TokenType.Bang:
-        if (!isBoolean(right)) {
+        if (!isBooleanValue(right)) {
           throw new Error(`Cannot apply '!' operator to ${right.type}`);
         }
         return booleanValue(!right.value);
       case TokenType.Minus:
-        if (!isNumber(right)) {
+        if (!isNumberValue(right)) {
           throw new Error(`Cannot apply '-' operator to ${right.type}`);
         }
         return numberValue(-right.value);
@@ -182,7 +192,7 @@ export class Evaluator {
     const left = this.evaluateExpression(expression.left);
     const right = this.evaluateExpression(expression.right);
 
-    if (isNumber(left) && isNumber(right)) {
+    if (isNumberValue(left) && isNumberValue(right)) {
       return performNumericOperation(
         left.value,
         right.value,
@@ -190,8 +200,16 @@ export class Evaluator {
       );
     }
 
-    if (isBoolean(left) && isBoolean(right)) {
+    if (isBooleanValue(left) && isBooleanValue(right)) {
       return performBooleanOperation(
+        left.value,
+        right.value,
+        expression.operator.type
+      );
+    }
+
+    if (isStringValue(left) && isStringValue(right)) {
+      return performStringOperation(
         left.value,
         right.value,
         expression.operator.type

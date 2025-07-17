@@ -8,6 +8,7 @@ import {
   numberLiteralExpression,
   parenthesizedExpression,
   sourceFile,
+  stringLiteralExpression,
   unaryExpression,
   type Expression,
   type ExpressionStatement,
@@ -168,6 +169,8 @@ export class Parser {
         return this.booleanLiteralExpression();
       case TokenType.Identifier:
         return this.identifierExpression();
+      case TokenType.StringLiteral:
+        return this.stringLiteralExpression();
       default:
         throw new Error(`Unexpected token: ${token.type}`);
     }
@@ -196,8 +199,13 @@ export class Parser {
   }
 
   private identifierExpression(): Expression {
-    const token = this.expectToken(TokenType.Identifier) as IdentifierToken;
+    const token = this.expectToken(TokenType.Identifier);
     return identifierExpression(token);
+  }
+
+  private stringLiteralExpression(): Expression {
+    const token = this.expectToken(TokenType.StringLiteral);
+    return stringLiteralExpression(token.value);
   }
 }
 
@@ -219,6 +227,8 @@ function binaryOperatorPrecedence(operator: TokenType): Precedence {
     case TokenType.AmpersandAmpersand:
       return Precedence.LogicalAnd;
     case TokenType.Plus:
+      return Precedence.Additive;
+    case TokenType.PlusPlus:
       return Precedence.Additive;
     case TokenType.Minus:
       return Precedence.Additive;

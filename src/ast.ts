@@ -52,7 +52,8 @@ export type Expression =
   | IdentifierExpression
   | ParenthesizedExpression
   | BooleanLiteralExpression
-  | NumberLiteralExpression;
+  | NumberLiteralExpression
+  | StringLiteralExpression;
 
 export enum ExpressionType {
   AssignmentExpression = "AssignmentExpression",
@@ -62,6 +63,7 @@ export enum ExpressionType {
   ParenthesizedExpression = "ParenthesizedExpression",
   BooleanLiteralExpression = "BooleanLiteralExpression",
   NumberLiteralExpression = "NumberLiteralExpression",
+  StringLiteralExpression = "StringLiteralExpression",
 }
 
 export interface AssignmentExpression {
@@ -147,4 +149,15 @@ export function numberLiteralExpression(
   value: number
 ): NumberLiteralExpression {
   return { type: ExpressionType.NumberLiteralExpression, value };
+}
+
+export interface StringLiteralExpression {
+  type: ExpressionType.StringLiteralExpression;
+  value: string;
+}
+
+export function stringLiteralExpression(
+  value: string
+): StringLiteralExpression {
+  return { type: ExpressionType.StringLiteralExpression, value };
 }

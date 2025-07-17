@@ -2,7 +2,14 @@ import { test, expect } from "bun:test";
 import { tokenize } from "./tokenizer";
 import { parse } from "./parser";
 import { Evaluator } from "./evaluator";
-import { NIL, ValueType, type Value } from "./value";
+import {
+  booleanValue,
+  NIL,
+  numberValue,
+  stringValue,
+  ValueType,
+  type Value,
+} from "./value";
 import { dedent } from "./dedent";
 
 function evaluate(tokens: string, evaluator?: Evaluator) {
@@ -17,18 +24,22 @@ function evaluate(tokens: string, evaluator?: Evaluator) {
 
 test("evaluate simple expression", () => {
   const result = evaluate("1 + 2 * 3");
-  expect(result).toStrictEqual({
-    type: ValueType.Number,
-    value: 7,
-  });
+  expect(result).toStrictEqual(numberValue(7));
 });
 
 test("evaluate boolean expression", () => {
   const result = evaluate("true && false || true");
-  expect(result).toStrictEqual({
-    type: ValueType.Boolean,
-    value: true,
-  });
+  expect(result).toStrictEqual(booleanValue(true));
+});
+
+test("evaluate string literal expression", () => {
+  const result = evaluate('"hello"');
+  expect(result).toStrictEqual(stringValue("hello"));
+});
+
+test("evaluate string concatenation expression", () => {
+  const result = evaluate('"hello" ++ " world"');
+  expect(result).toStrictEqual(stringValue("hello world"));
 });
 
 test("evaluate relational expression", () => {

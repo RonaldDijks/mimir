@@ -31,6 +31,11 @@ export class Tokenizer {
     let type: TokenType;
     switch (this.peek()) {
       case "+":
+        if (this.peek(1) === "+") {
+          type = TokenType.PlusPlus;
+          this.current += 2;
+          break;
+        }
         type = TokenType.Plus;
         this.current++;
         break;
@@ -108,6 +113,8 @@ export class Tokenizer {
         type = TokenType.ParenthesisClose;
         this.current++;
         break;
+      case '"':
+        return this.string();
 
       case "0":
       case "1":
@@ -177,6 +184,28 @@ export class Tokenizer {
     };
   }
 
+  private string(): Token {
+    const start = this.current;
+    this.current++;
+    while (true) {
+      const peek = this.peek();
+      if (peek === "\0") {
+        throw new Error("Unterminated string literal");
+      }
+      if (peek === '"') {
+        break;
+      }
+      this.current++;
+    }
+    this.current++;
+    const value = this.input.slice(start + 1, this.current - 1);
+    return {
+      type: TokenType.StringLiteral,
+      text: this.input.slice(start, this.current),
+      span: span(start, this.current),
+      value,
+    };
+  }
   public all(): Token[] {
     const tokens: Token[] = [];
 

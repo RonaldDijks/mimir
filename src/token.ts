@@ -2,12 +2,14 @@ import type { Span } from "./span";
 
 export enum TokenType {
   Number = "Number",
+  StringLiteral = "StringLiteral",
 
   Plus = "Plus",
   Minus = "Minus",
   Asterisk = "Asterisk",
   Slash = "Slash",
 
+  PlusPlus = "PlusPlus",
   AmpersandAmpersand = "AmpersandAmpersand",
   PipePipe = "PipePipe",
   Equals = "Equals",
@@ -42,11 +44,16 @@ export interface NumberToken extends Base<TokenType.Number> {
   value: number;
 }
 
+export interface StringToken extends Base<TokenType.StringLiteral> {
+  value: string;
+}
+
 export interface PlusToken extends Base<TokenType.Plus> {}
 export interface MinusToken extends Base<TokenType.Minus> {}
 export interface AsteriskToken extends Base<TokenType.Asterisk> {}
 export interface SlashToken extends Base<TokenType.Slash> {}
 
+export interface PlusPlusToken extends Base<TokenType.PlusPlus> {}
 export interface AmpersandAmpersandToken
   extends Base<TokenType.AmpersandAmpersand> {}
 export interface PipePipeToken extends Base<TokenType.PipePipe> {}
@@ -75,10 +82,12 @@ export interface EndOfFileToken extends Base<TokenType.EndOfFile> {}
 
 export type Token =
   | NumberToken
+  | StringToken
   | PlusToken
   | MinusToken
   | AsteriskToken
   | SlashToken
+  | PlusPlusToken
   | AmpersandAmpersandToken
   | PipePipeToken
   | EqualsToken
