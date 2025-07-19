@@ -2,9 +2,9 @@
 
 import { dedent } from "@mimir/core/src/util/dedent";
 import { useState } from "react";
-import { Header } from "./components/Header";
-import { Editor } from "./components/Editor";
-import { Viewer } from "./components/Viewer";
+import { Header } from "@/components/Header";
+import { Editor } from "@/components/Editor";
+import { Viewer } from "@/components/Viewer";
 
 const initial = dedent`
 let x = 10
@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <div className="h-screen max-h-screen flex flex-col">
       <Header />
-      <div className="flex-1 grid grid-cols-2 overflow-hidden gap-2 mx-2 my-2">
+      <div className="flex-1 grid grid-cols-2 overflow-hidden gap-2 mx-2 mb-2">
         <div className="overflow-hidden">
           <Editor value={sourceCode} onChange={setSourceCode} />
         </div>

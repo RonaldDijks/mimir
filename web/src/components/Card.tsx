@@ -9,7 +9,7 @@ export const Card = ({ children, className }: CardProps) => {
   return (
     <div
       className={cn(
-        "border border-gray-300 rounded-md overflow-hidden",
+        "border border-border rounded-md overflow-hidden bg-card",
         className
       )}
     >
@@ -27,7 +27,7 @@ export const CardHeader = ({ children, className }: CardHeaderProps) => {
   return (
     <div
       className={cn(
-        "border-b border-gray-300 px-2 h-12 flex items-center",
+        "border-b border-border px-2 h-12 flex items-center",
         className
       )}
     >
@@ -42,5 +42,5 @@ export interface CardTitleProps {
 }
 
 export const CardTitle = ({ children, className }: CardTitleProps) => {
-  return <div className={cn("text-sm font-bold", className)}>{children}</div>;
+  return <div className={cn("font-medium", className)}>{children}</div>;
 };

@@ -1,4 +1,3 @@
-import ReactCodeMirror from "@uiw/react-codemirror";
 import { useMemo, useState } from "react";
 import { Card, CardHeader, CardTitle } from "./Card";
 import {
@@ -11,7 +10,8 @@ import {
 import { tokenize } from "@mimir/core/src/analysis/tokenizer";
 import { parse } from "@mimir/core/src/analysis/parser";
 import { json } from "@codemirror/lang-json";
-import { cn } from "@/lib/utils";
+
+import { CodeEditor } from "./ui/code-editor";
 
 export interface ViewerProps {
   value: string;
@@ -24,6 +24,7 @@ enum Mode {
 
 export const Viewer = ({ value }: ViewerProps) => {
   const [mode, setMode] = useState<Mode>(Mode.AST);
+
   const compiled = useMemo(() => {
     try {
       const tokens = tokenize(value);
@@ -42,26 +43,28 @@ export const Viewer = ({ value }: ViewerProps) => {
     <Card className="h-full">
       <CardHeader className="justify-between">
         <CardTitle>Viewer</CardTitle>
-        <Select value={mode} onValueChange={(value) => setMode(value as Mode)}>
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="Select a mode" />
-          </SelectTrigger>
-          <SelectContent className="w-36">
-            <SelectItem value="ast">AST</SelectItem>
-            <SelectItem value="tokens">Tokens</SelectItem>
-          </SelectContent>
-        </Select>
+        <ModeSelector mode={mode} setMode={setMode} />
       </CardHeader>
-      <ReactCodeMirror
-        value={compiled}
-        readOnly
-        height="100%"
-        className={cn(
-          "h-full",
-          "pb-12" // Should find a way to get rid of this
-        )}
-        extensions={[json()]}
-      />
+      <CodeEditor value={compiled} readOnly extensions={[json()]} />
     </Card>
+  );
+};
+
+interface ModeSelectorProps {
+  mode: Mode;
+  setMode: (mode: Mode) => void;
+}
+
+const ModeSelector = ({ mode, setMode }: ModeSelectorProps) => {
+  return (
+    <Select value={mode} onValueChange={(value) => setMode(value as Mode)}>
+      <SelectTrigger className="w-36" size="sm">
+        <SelectValue placeholder="Select a mode" />
+      </SelectTrigger>
+      <SelectContent className="w-36">
+        <SelectItem value="ast">AST</SelectItem>
+        <SelectItem value="tokens">Tokens</SelectItem>
+      </SelectContent>
+    </Select>
   );
 };
