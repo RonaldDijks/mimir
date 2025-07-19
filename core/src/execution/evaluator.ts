@@ -1,4 +1,4 @@
-import { assertNever } from "./assert";
+import { assertNever } from "../util/assert";
 import {
   ExpressionType,
   StatementType,
@@ -12,8 +12,8 @@ import {
   type LetStatement,
   type Statement,
   type UnaryExpression,
-} from "./ast";
-import { TokenType } from "./token";
+} from "../analysis/ast";
+import { TokenType } from "../analysis/token";
 import {
   booleanValue,
   isBooleanValue,

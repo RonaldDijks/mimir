@@ -17,7 +17,7 @@ import {
 } from "./ast";
 import { TokenType, type Token } from "./token";
 import { Parser } from "./parser";
-import { dedent } from "./dedent";
+import { dedent } from "../util/dedent";
 
 function parseExpression(tokens: Token[]) {
   const parser = new Parser(tokens);

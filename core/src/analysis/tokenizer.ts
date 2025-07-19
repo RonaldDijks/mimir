@@ -1,4 +1,4 @@
-import { span } from "./span";
+import { span } from "../core/span";
 import { keyword, TokenType, type Token } from "./token";
 
 export function tokenize(input: string): Token[] {

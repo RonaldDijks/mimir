@@ -1,4 +1,4 @@
-import type { Span } from "./span";
+import type { Span } from "../core/span";
 
 export enum TokenType {
   Number = "Number",

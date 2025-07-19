@@ -1,5 +1,5 @@
 import type { EndOfFileToken, IdentifierToken, Token } from "./token";
-import type { Span } from "./span";
+import type { Span } from "../core/span";
 
 export interface SourceFile {
   statements: Statement[];

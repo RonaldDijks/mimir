@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test";
-import { tokenize } from "./tokenizer";
-import { parse } from "./parser";
+import { tokenize } from "../analysis/tokenizer";
+import { parse } from "../analysis/parser";
 import { Evaluator } from "./evaluator";
 import {
   booleanValue,
@@ -10,7 +10,7 @@ import {
   ValueType,
   type Value,
 } from "./value";
-import { dedent } from "./dedent";
+import { dedent } from "../util/dedent";
 
 function evaluate(tokens: string, evaluator?: Evaluator) {
   evaluator ??= new Evaluator();
