@@ -1,7 +1,6 @@
 import {
   assignmentExpression,
   binaryExpression,
-  blockExpression,
   booleanLiteralExpression,
   expressionStatement,
   ExpressionType,
@@ -23,7 +22,6 @@ import {
   type Statement,
 } from "./ast";
 import { TokenType, type Token, type NumberToken } from "./token";
-import { mergeSpan } from "./span";
 
 enum Precedence {
   Lowest = 0,
@@ -213,40 +211,22 @@ export class Parser {
   }
 
   private ifExpression(): IfExpression {
-    const ifToken = this.expectToken(TokenType.If);
+    const _ifToken = this.expectToken(TokenType.If);
     const condition = this.expression();
 
-    const openBrace = this.expectToken(TokenType.BraceOpen);
-    if (this.peek().type === TokenType.BraceClose) {
-      throw new Error(
-        `Empty if block is not allowed at position ${openBrace.span.start}. Add at least one statement.`
-      );
-    }
-
     const then_branch = this.block();
-    const closeBrace = this.expectToken(TokenType.BraceClose);
 
     let else_branch: IfExpression | BlockExpression | undefined;
-    let endSpan = closeBrace.span;
-
     if (this.peek().type === TokenType.Else) {
-      const elseToken = this.expectToken(TokenType.Else);
+      const _elseToken = this.expectToken(TokenType.Else);
       if (this.peek().type === TokenType.If) {
         else_branch = this.ifExpression();
       } else {
-        const elseOpenBrace = this.expectToken(TokenType.BraceOpen);
-        if (this.peek().type === TokenType.BraceClose) {
-          throw new Error(
-            `Empty else block is not allowed at position ${elseOpenBrace.span.start}. Add at least one statement.`
-          );
-        }
         const elseBlock = this.block();
-        const elseCloseBrace = this.expectToken(TokenType.BraceClose);
         else_branch = {
           type: ExpressionType.BlockExpression,
           block: elseBlock,
         };
-        endSpan = elseCloseBrace.span;
       }
     }
 
@@ -254,10 +234,12 @@ export class Parser {
   }
 
   private block(): Block {
+    const openBrace = this.expectToken(TokenType.BraceOpen);
     const statements: Statement[] = [];
     while (this.peek().type !== TokenType.BraceClose) {
       statements.push(this.statement());
     }
+    const closeBrace = this.expectToken(TokenType.BraceClose);
     return { statements };
   }
 }

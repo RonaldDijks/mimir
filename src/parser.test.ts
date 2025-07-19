@@ -253,22 +253,6 @@ test("parse if expression with only else", () => {
   );
 });
 
-test("parser error for empty if block", () => {
-  const input = "if true {}";
-  const tokens = tokenize(input);
-  expect(() => parseExpression(tokens)).toThrow(
-    "Empty if block is not allowed at position 8. Add at least one statement."
-  );
-});
-
-test("parser error for empty else block", () => {
-  const input = "if true { 1 } else {}";
-  const tokens = tokenize(input);
-  expect(() => parseExpression(tokens)).toThrow(
-    "Empty else block is not allowed at position 19. Add at least one statement."
-  );
-});
-
 test("parser error for missing condition", () => {
   const input = "if { 1 }";
   const tokens = tokenize(input);
