@@ -1,9 +1,10 @@
 "use client";
 
-import { compile } from "@mimir/core";
 import { dedent } from "@mimir/core/src/util/dedent";
-import ReactCodeMirror from "@uiw/react-codemirror";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { Header } from "./components/Header";
+import { Editor } from "./components/Editor";
+import { Viewer } from "./components/Viewer";
 
 const initial = dedent`
 let x = 10
@@ -14,30 +15,16 @@ x + y
 export default function Home() {
   const [sourceCode, setSourceCode] = useState(initial);
 
-  const compiled = useMemo(() => {
-    try {
-      return compile(sourceCode);
-    } catch (error) {
-      console.log(error);
-      return null;
-    }
-  }, [sourceCode]);
-
   return (
-    <div className="h-screen w-screen grid grid-cols-2">
-      <div className="min-h-screen overflow-y-scroll">
-        <ReactCodeMirror
-          height="100%"
-          value={sourceCode}
-          onChange={(value) => setSourceCode(value)}
-        />
-      </div>
-      <div className="min-h-screen overflow-y-scroll">
-        <ReactCodeMirror
-          height="100%"
-          value={JSON.stringify(compiled, null, 2)}
-          readOnly
-        />
+    <div className="h-screen max-h-screen flex flex-col">
+      <Header />
+      <div className="flex-1 grid grid-cols-2 overflow-hidden gap-2 mx-2 my-2">
+        <div className="overflow-hidden">
+          <Editor value={sourceCode} onChange={setSourceCode} />
+        </div>
+        <div className="overflow-hidden">
+          <Viewer value={sourceCode} />
+        </div>
       </div>
     </div>
   );
