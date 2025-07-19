@@ -20,7 +20,7 @@ const myTheme = EditorView.theme({
 });
 
 export const CodeEditor = (props: ReactCodeMirrorProps) => {
-  const { theme } = useTheme();
+  const { resolvedTheme: theme } = useTheme();
   return (
     <ReactCodeMirror
       {...props}
