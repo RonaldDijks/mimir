@@ -28,11 +28,11 @@ export const Viewer = ({ value }: ViewerProps) => {
   const compiled = useMemo(() => {
     try {
       const tokens = tokenize(value);
+      if (mode === Mode.Tokens) {
+        return JSON.stringify(tokens, null, 2);
+      }
       const ast = parse(tokens);
-      return {
-        [Mode.AST]: JSON.stringify(ast, null, 2),
-        [Mode.Tokens]: JSON.stringify(tokens, null, 2),
-      }[mode];
+      return JSON.stringify(ast, null, 2);
     } catch (error) {
       console.log(error);
       return "";
