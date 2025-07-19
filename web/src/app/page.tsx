@@ -1,7 +1,7 @@
 "use client";
 
 import { compile } from "@mimir/core";
-import { dedent } from "@mimir/core/src/dedent";
+import { dedent } from "@mimir/core/src/util/dedent";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { useMemo, useState } from "react";
 
