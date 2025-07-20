@@ -1,0 +1,5 @@
+# This file contains commits that should be ignored by git blame
+# These are typically large formatting changes that don't represent actual code logic changes
+
+# Migration from ESLint to Biome - formatting changes only
+0b069cc628054e350a83f2c0e8babed9989de6da 
