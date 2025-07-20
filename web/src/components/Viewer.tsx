@@ -99,10 +99,10 @@ interface ModeSelectorProps {
 const ModeSelector = ({ mode, setMode, className }: ModeSelectorProps) => {
   return (
     <Select value={mode} onValueChange={(value) => setMode(value as Mode)}>
-      <SelectTrigger className={cn("w-36 ", className)} size="sm">
+      <SelectTrigger className={cn(className)} size="sm">
         <SelectValue placeholder="Select a mode" />
       </SelectTrigger>
-      <SelectContent className="w-36">
+      <SelectContent>
         <SelectItem value="ast">AST</SelectItem>
         <SelectItem value="tokens">Tokens</SelectItem>
       </SelectContent>
