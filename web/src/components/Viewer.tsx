@@ -59,31 +59,7 @@ export const Viewer = ({ value }: ViewerProps) => {
     <Card className="h-full">
       <CardHeader className="justify-between">
         <CardTitle>Viewer</CardTitle>
-
-        <ModeSelector
-          mode={mode}
-          setMode={setMode}
-          className="hidden md:flex"
-        />
-
-        <ToggleGroup
-          variant="outline"
-          className="md:hidden"
-          type="single"
-          value={mode}
-          onValueChange={(value) => {
-            if (value) {
-              setMode(value as Mode);
-            }
-          }}
-        >
-          <ToggleGroupItem value={Mode.AST} className="text-xs">
-            AST
-          </ToggleGroupItem>
-          <ToggleGroupItem value={Mode.Tokens} className="text-xs">
-            Tokens
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <ModeSelector mode={mode} setMode={setMode} />
       </CardHeader>
       <CodeEditor value={content} readOnly extensions={[json()]} />
     </Card>
@@ -93,19 +69,39 @@ export const Viewer = ({ value }: ViewerProps) => {
 interface ModeSelectorProps {
   mode: Mode;
   setMode: (mode: Mode) => void;
-  className?: string;
 }
 
-const ModeSelector = ({ mode, setMode, className }: ModeSelectorProps) => {
+const ModeSelector = ({ mode, setMode }: ModeSelectorProps) => {
   return (
-    <Select value={mode} onValueChange={(value) => setMode(value as Mode)}>
-      <SelectTrigger className={cn(className)} size="sm">
-        <SelectValue placeholder="Select a mode" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="ast">AST</SelectItem>
-        <SelectItem value="tokens">Tokens</SelectItem>
-      </SelectContent>
-    </Select>
+    <>
+      <Select value={mode} onValueChange={(value) => setMode(value as Mode)}>
+        <SelectTrigger className="hidden md:flex" size="sm">
+          <SelectValue placeholder="Select a mode" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="ast">AST</SelectItem>
+          <SelectItem value="tokens">Tokens</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <ToggleGroup
+        variant="outline"
+        className="md:hidden"
+        type="single"
+        value={mode}
+        onValueChange={(value) => {
+          if (value) {
+            setMode(value as Mode);
+          }
+        }}
+      >
+        <ToggleGroupItem value={Mode.AST} className="text-xs">
+          AST
+        </ToggleGroupItem>
+        <ToggleGroupItem value={Mode.Tokens} className="text-xs">
+          Tokens
+        </ToggleGroupItem>
+      </ToggleGroup>
+    </>
   );
 };
