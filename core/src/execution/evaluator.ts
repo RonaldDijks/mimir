@@ -8,6 +8,7 @@ import {
   type IdentifierExpression,
   type IfExpression,
   type LetStatement,
+  type SourceFile,
   type Statement,
   StatementType,
   type UnaryExpression,
@@ -124,8 +125,16 @@ export class Evaluator {
   private readonly MAX_CALL_DEPTH = 1000;
   private callDepth = 0;
 
-  public evaluate(statement: Statement): Value {
-    return this.evaluateStatement(statement);
+  public evaluate(ast: SourceFile): Value {
+    if (ast.statements.length === 0) {
+      return NIL;
+    }
+
+    let value: Value = NIL;
+    for (const statement of ast.statements) {
+      value = this.evaluateStatement(statement);
+    }
+    return value;
   }
 
   public evaluateStatement(statement: Statement): Value {
