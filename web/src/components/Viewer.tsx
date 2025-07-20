@@ -1,17 +1,23 @@
 import { useMemo, useState } from "react";
+
 import { Card, CardHeader, CardTitle } from "./Card";
+
+import { tokenize } from "@mimir/core/src/analysis/tokenizer";
+import { parse } from "@mimir/core/src/analysis/parser";
+import { json } from "@codemirror/lang-json";
+
+import { CodeEditor } from "./ui/code-editor";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { tokenize } from "@mimir/core/src/analysis/tokenizer";
-import { parse } from "@mimir/core/src/analysis/parser";
-import { json } from "@codemirror/lang-json";
-
-import { CodeEditor } from "./ui/code-editor";
+} from "./ui/select";
+import { cn } from "@/lib/utils";
+import { Token } from "@mimir/core/src/analysis/token";
+import { SourceFile } from "@mimir/core/src/analysis/ast";
 
 export interface ViewerProps {
   value: string;
@@ -25,27 +31,61 @@ enum Mode {
 export const Viewer = ({ value }: ViewerProps) => {
   const [mode, setMode] = useState<Mode>(Mode.AST);
 
-  const compiled = useMemo(() => {
+  const compiled = useMemo((): {
+    tokens: Token[] | null;
+    ast: SourceFile | null;
+  } => {
     try {
       const tokens = tokenize(value);
       if (mode === Mode.Tokens) {
-        return JSON.stringify(tokens, null, 2);
+        return { tokens, ast: null } as const;
       }
       const ast = parse(tokens);
-      return JSON.stringify(ast, null, 2);
+      return { tokens, ast } as const;
     } catch (error) {
       console.log(error);
-      return "";
+      return { tokens: null, ast: null } as const;
     }
   }, [value, mode]);
+
+  const content = useMemo(() => {
+    if (mode === Mode.Tokens) {
+      return JSON.stringify(compiled.tokens, null, 2);
+    }
+    return JSON.stringify(compiled.ast, null, 2);
+  }, [compiled, mode]);
 
   return (
     <Card className="h-full">
       <CardHeader className="justify-between">
         <CardTitle>Viewer</CardTitle>
-        <ModeSelector mode={mode} setMode={setMode} />
+
+        <ModeSelector
+          mode={mode}
+          setMode={setMode}
+          className="hidden md:flex"
+        />
+
+        <ToggleGroup
+          variant="outline"
+          className="md:hidden"
+          type="single"
+          value={mode}
+          onValueChange={(value) => {
+            if (value) {
+              setMode(value as Mode);
+            }
+          }}
+        >
+          <ToggleGroupItem value={Mode.AST} className="text-xs">
+            AST
+          </ToggleGroupItem>
+          <ToggleGroupItem value={Mode.Tokens} className="text-xs">
+            Tokens
+          </ToggleGroupItem>
+        </ToggleGroup>
       </CardHeader>
-      <CodeEditor value={compiled} readOnly extensions={[json()]} />
+      <CodeEditor value={content} readOnly extensions={[json()]} />
     </Card>
   );
 };
@@ -53,12 +93,13 @@ export const Viewer = ({ value }: ViewerProps) => {
 interface ModeSelectorProps {
   mode: Mode;
   setMode: (mode: Mode) => void;
+  className?: string;
 }
 
-const ModeSelector = ({ mode, setMode }: ModeSelectorProps) => {
+const ModeSelector = ({ mode, setMode, className }: ModeSelectorProps) => {
   return (
     <Select value={mode} onValueChange={(value) => setMode(value as Mode)}>
-      <SelectTrigger className="w-36" size="sm">
+      <SelectTrigger className={cn("w-36 ", className)} size="sm">
         <SelectValue placeholder="Select a mode" />
       </SelectTrigger>
       <SelectContent className="w-36">

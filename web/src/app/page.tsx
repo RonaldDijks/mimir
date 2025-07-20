@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <div className="h-screen max-h-screen flex flex-col">
       <Header />
-      <div className="flex-1 grid grid-cols-2 overflow-hidden gap-2 mx-2 mb-2">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 grid-rows-2 md:grid-rows-1 overflow-hidden gap-2 mx-2 mb-2">
         <div className="overflow-hidden">
           <Editor value={sourceCode} onChange={setSourceCode} />
         </div>
