@@ -1,7 +1,7 @@
-import { test, expect } from "bun:test";
-import { tokenize } from "./tokenizer";
-import { TokenType } from "./token";
+import { expect, test } from "bun:test";
 import { dedent } from "../util/dedent";
+import { TokenType } from "./token";
+import { tokenize } from "./tokenizer";
 
 test("tokenize simple expression", () => {
   const tokens = tokenize("1 + 2 * 3");

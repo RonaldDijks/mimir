@@ -2,8 +2,8 @@
 
 import { dedent } from "@mimir/core/src/util/dedent";
 import { useState } from "react";
-import { Header } from "@/components/Header";
 import { Editor } from "@/components/Editor";
+import { Header } from "@/components/Header";
 import { Viewer } from "@/components/Viewer";
 
 const initial = dedent`

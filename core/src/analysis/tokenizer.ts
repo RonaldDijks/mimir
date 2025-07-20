@@ -1,5 +1,5 @@
 import { span } from "../core/span";
-import { keyword, TokenType, type Token } from "./token";
+import { keyword, type Token, TokenType } from "./token";
 
 export function tokenize(input: string): Token[] {
   const tokenizer = new Tokenizer(input);
@@ -15,14 +15,15 @@ export class Tokenizer {
 
   private peek(offset = 0): string {
     const index = this.current + offset;
-    if (index >= this.input.length) {
+    const char = this.input[index];
+    if (char === undefined) {
       return "\0";
     }
-    return this.input[index]!;
+    return char;
   }
 
   public next(): Token {
-    while (isWhitespace(this.input[this.current]!)) {
+    while (isWhitespace(this.peek())) {
       this.current++;
     }
 
@@ -172,8 +173,8 @@ export class Tokenizer {
     const start = this.current;
     while (
       this.current < this.input.length &&
-      this.input[this.current]! >= "0" &&
-      this.input[this.current]! <= "9"
+      this.peek() >= "0" &&
+      this.peek() <= "9"
     ) {
       this.current++;
     }

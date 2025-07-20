@@ -1,19 +1,19 @@
-import { assertNever } from "../util/assert";
 import {
-  ExpressionType,
-  StatementType,
   type AssignmentExpression,
   type BinaryExpression,
   type Block,
   type BlockExpression,
   type Expression,
+  ExpressionType,
   type IdentifierExpression,
   type IfExpression,
   type LetStatement,
   type Statement,
+  StatementType,
   type UnaryExpression,
 } from "../analysis/ast";
 import { TokenType } from "../analysis/token";
+import { assertNever } from "../util/assert";
 import {
   booleanValue,
   isBooleanValue,
@@ -28,7 +28,7 @@ import {
 function performNumericOperation(
   left: number,
   right: number,
-  operator: TokenType
+  operator: TokenType,
 ): Value {
   switch (operator) {
     case TokenType.Plus:
@@ -62,7 +62,7 @@ function performNumericOperation(
 function performBooleanOperation(
   left: boolean,
   right: boolean,
-  operator: TokenType
+  operator: TokenType,
 ): Value {
   switch (operator) {
     case TokenType.AmpersandAmpersand:
@@ -81,7 +81,7 @@ function performBooleanOperation(
 function performStringOperation(
   left: string,
   right: string,
-  operator: TokenType
+  operator: TokenType,
 ): Value {
   switch (operator) {
     case TokenType.PlusPlus:
@@ -171,7 +171,7 @@ export class Evaluator {
   }
 
   private evaluateAssignmentExpression(
-    expression: AssignmentExpression
+    expression: AssignmentExpression,
   ): Value {
     const value = this.evaluateExpression(expression.right);
     this.environment.update(expression.left.text, value);
@@ -193,7 +193,7 @@ export class Evaluator {
         return numberValue(-right.value);
       default:
         throw new Error(
-          `Unexpected unary operator type: ${expression.operator.type}`
+          `Unexpected unary operator type: ${expression.operator.type}`,
         );
     }
   }
@@ -206,7 +206,7 @@ export class Evaluator {
       return performNumericOperation(
         left.value,
         right.value,
-        expression.operator.type
+        expression.operator.type,
       );
     }
 
@@ -214,7 +214,7 @@ export class Evaluator {
       return performBooleanOperation(
         left.value,
         right.value,
-        expression.operator.type
+        expression.operator.type,
       );
     }
 
@@ -222,17 +222,17 @@ export class Evaluator {
       return performStringOperation(
         left.value,
         right.value,
-        expression.operator.type
+        expression.operator.type,
       );
     }
 
     throw new Error(
-      `Unsupported operation: ${left.type} ${expression.operator.type} ${right.type}`
+      `Unsupported operation: ${left.type} ${expression.operator.type} ${right.type}`,
     );
   }
 
   private evaluateIdentifierExpression(
-    expression: IdentifierExpression
+    expression: IdentifierExpression,
   ): Value {
     const value = this.environment.get(expression.name.text);
     if (value === undefined) {
@@ -246,7 +246,7 @@ export class Evaluator {
     this.callDepth++;
     if (this.callDepth > this.MAX_CALL_DEPTH) {
       throw new Error(
-        `Maximum call depth exceeded. Consider reducing the nesting depth of your if expressions.`
+        `Maximum call depth exceeded. Consider reducing the nesting depth of your if expressions.`,
       );
     }
 
@@ -257,7 +257,7 @@ export class Evaluator {
       if (!isBooleanValue(condition)) {
         throw new Error(
           `If condition must be a boolean value, got ${condition.type}. ` +
-            `Consider using comparison operators (==, !=, <, >, etc.) to create a boolean condition.`
+            `Consider using comparison operators (==, !=, <, >, etc.) to create a boolean condition.`,
         );
       }
 

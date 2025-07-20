@@ -10,7 +10,7 @@ export const Card = ({ children, className }: CardProps) => {
     <div
       className={cn(
         "border border-border rounded-md overflow-hidden bg-background",
-        className
+        className,
       )}
     >
       {children}
@@ -28,7 +28,7 @@ export const CardHeader = ({ children, className }: CardHeaderProps) => {
     <div
       className={cn(
         "border-b border-border px-2 h-12 flex items-center",
-        className
+        className,
       )}
     >
       {children}

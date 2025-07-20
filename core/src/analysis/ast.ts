@@ -1,5 +1,4 @@
 import type { EndOfFileToken, IdentifierToken, Token } from "./token";
-import type { Span } from "../core/span";
 
 export interface SourceFile {
   statements: Statement[];
@@ -8,7 +7,7 @@ export interface SourceFile {
 
 export function sourceFile(
   statements: Statement[],
-  endOfFile: EndOfFileToken
+  endOfFile: EndOfFileToken,
 ): SourceFile {
   return { statements, endOfFile };
 }
@@ -26,7 +25,7 @@ export interface ExpressionStatement {
 }
 
 export function expressionStatement(
-  expression: Expression
+  expression: Expression,
 ): ExpressionStatement {
   return { type: StatementType.ExpressionStatement, expression };
 }
@@ -41,7 +40,7 @@ export interface LetStatement {
 export function letStatement(
   mut: boolean,
   name: Token,
-  value: Expression
+  value: Expression,
 ): LetStatement {
   return { type: StatementType.LetStatement, mut, name, value };
 }
@@ -79,7 +78,7 @@ export interface AssignmentExpression {
 
 export function assignmentExpression(
   left: IdentifierToken,
-  right: Expression
+  right: Expression,
 ): AssignmentExpression {
   return { type: ExpressionType.AssignmentExpression, left, right };
 }
@@ -92,7 +91,7 @@ export interface UnaryExpression {
 
 export function unaryExpression(
   operator: Token,
-  right: Expression
+  right: Expression,
 ): UnaryExpression {
   return { type: ExpressionType.UnaryExpression, operator, right };
 }
@@ -107,7 +106,7 @@ export interface BinaryExpression {
 export function binaryExpression(
   left: Expression,
   right: Expression,
-  operator: Token
+  operator: Token,
 ): BinaryExpression {
   return { type: ExpressionType.BinaryExpression, left, right, operator };
 }
@@ -118,7 +117,7 @@ export interface IdentifierExpression {
 }
 
 export function identifierExpression(
-  name: IdentifierToken
+  name: IdentifierToken,
 ): IdentifierExpression {
   return { type: ExpressionType.IdentifierExpression, name };
 }
@@ -129,7 +128,7 @@ export interface ParenthesizedExpression {
 }
 
 export function parenthesizedExpression(
-  expression: Expression
+  expression: Expression,
 ): ParenthesizedExpression {
   return { type: ExpressionType.ParenthesizedExpression, expression };
 }
@@ -157,7 +156,7 @@ export interface IfExpression {
 export function ifExpression(
   condition: Expression,
   then_branch: Block,
-  else_branch?: IfExpression | BlockExpression
+  else_branch?: IfExpression | BlockExpression,
 ): IfExpression {
   return {
     type: ExpressionType.IfExpression,
@@ -173,7 +172,7 @@ export interface BooleanLiteralExpression {
 }
 
 export function booleanLiteralExpression(
-  value: boolean
+  value: boolean,
 ): BooleanLiteralExpression {
   return { type: ExpressionType.BooleanLiteralExpression, value };
 }
@@ -184,7 +183,7 @@ export interface NumberLiteralExpression {
 }
 
 export function numberLiteralExpression(
-  value: number
+  value: number,
 ): NumberLiteralExpression {
   return { type: ExpressionType.NumberLiteralExpression, value };
 }
@@ -195,7 +194,7 @@ export interface StringLiteralExpression {
 }
 
 export function stringLiteralExpression(
-  value: string
+  value: string,
 ): StringLiteralExpression {
   return { type: ExpressionType.StringLiteralExpression, value };
 }

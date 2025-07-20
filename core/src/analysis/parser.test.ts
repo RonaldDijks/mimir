@@ -1,23 +1,23 @@
-import { test, expect } from "bun:test";
-import { tokenize } from "./tokenizer";
+import { expect, test } from "bun:test";
+import { dedent } from "../util/dedent";
 import {
-  unaryExpression,
-  booleanLiteralExpression,
-  binaryExpression,
-  parenthesizedExpression,
-  numberLiteralExpression,
-  StatementType,
-  letStatement,
   assignmentExpression,
+  binaryExpression,
+  blockExpression,
+  booleanLiteralExpression,
+  expressionStatement,
+  ifExpression,
+  letStatement,
+  numberLiteralExpression,
+  parenthesizedExpression,
+  StatementType,
   sourceFile,
   stringLiteralExpression,
-  ifExpression,
-  expressionStatement,
-  blockExpression,
+  unaryExpression,
 } from "./ast";
-import { TokenType, type Token } from "./token";
 import { Parser } from "./parser";
-import { dedent } from "../util/dedent";
+import { type Token, TokenType } from "./token";
+import { tokenize } from "./tokenizer";
 
 function parseExpression(tokens: Token[]) {
   const parser = new Parser(tokens);
@@ -25,8 +25,8 @@ function parseExpression(tokens: Token[]) {
   if (sourceFile.statements.length !== 1) {
     throw new Error("Expected 1 statement");
   }
-  const statement = sourceFile.statements[0]!;
-  if (statement.type !== StatementType.ExpressionStatement) {
+  const statement = sourceFile.statements[0];
+  if (statement?.type !== StatementType.ExpressionStatement) {
     throw new Error("Expected expression statement");
   }
   return statement.expression;
@@ -43,8 +43,8 @@ test("parse simple expression", () => {
         text: "*",
         span: { start: 6, end: 7 },
       }),
-      { type: TokenType.Plus, text: "+", span: { start: 2, end: 3 } }
-    )
+      { type: TokenType.Plus, text: "+", span: { start: 2, end: 3 } },
+    ),
   );
 });
 
@@ -58,17 +58,17 @@ test("parses complex operator precedence correctly", () => {
         binaryExpression(
           numberLiteralExpression(2),
           numberLiteralExpression(3),
-          { type: TokenType.Asterisk, text: "*", span: { start: 6, end: 7 } }
+          { type: TokenType.Asterisk, text: "*", span: { start: 6, end: 7 } },
         ),
-        { type: TokenType.Plus, text: "+", span: { start: 2, end: 3 } }
+        { type: TokenType.Plus, text: "+", span: { start: 2, end: 3 } },
       ),
       binaryExpression(numberLiteralExpression(4), numberLiteralExpression(5), {
         type: TokenType.Asterisk,
         text: "*",
         span: { start: 14, end: 15 },
       }),
-      { type: TokenType.Plus, text: "+", span: { start: 10, end: 11 } }
-    )
+      { type: TokenType.Plus, text: "+", span: { start: 10, end: 11 } },
+    ),
   );
 });
 
@@ -84,11 +84,11 @@ test("parse boolean expression", () => {
           type: TokenType.AmpersandAmpersand,
           text: "&&",
           span: { start: 5, end: 7 },
-        }
+        },
       ),
       booleanLiteralExpression(true),
-      { type: TokenType.PipePipe, text: "||", span: { start: 14, end: 16 } }
-    )
+      { type: TokenType.PipePipe, text: "||", span: { start: 14, end: 16 } },
+    ),
   );
 });
 
@@ -105,8 +105,8 @@ test("parse string concatenation expression", () => {
     binaryExpression(
       stringLiteralExpression("hello"),
       stringLiteralExpression(" world"),
-      { type: TokenType.PlusPlus, text: "++", span: { start: 8, end: 10 } }
-    )
+      { type: TokenType.PlusPlus, text: "++", span: { start: 8, end: 10 } },
+    ),
   );
 });
 
@@ -127,7 +127,7 @@ test("parse comparison expression", () => {
         type: operator[1],
         text: operator[0],
         span: { start: 2, end: 2 + operator[0].length },
-      } as Token)
+      } as Token),
     );
   }
 });
@@ -142,8 +142,8 @@ test("parse unary expression", () => {
         text: "!",
         span: { start: 0, end: 1 },
       },
-      booleanLiteralExpression(true)
-    )
+      booleanLiteralExpression(true),
+    ),
   );
 });
 
@@ -156,12 +156,12 @@ test("parse parenthesized expression", () => {
         binaryExpression(
           numberLiteralExpression(1),
           numberLiteralExpression(2),
-          { type: TokenType.Plus, text: "+", span: { start: 3, end: 4 } }
-        )
+          { type: TokenType.Plus, text: "+", span: { start: 3, end: 4 } },
+        ),
       ),
       numberLiteralExpression(3),
-      { type: TokenType.Asterisk, text: "*", span: { start: 8, end: 9 } }
-    )
+      { type: TokenType.Asterisk, text: "*", span: { start: 8, end: 9 } },
+    ),
   );
 });
 
@@ -179,15 +179,15 @@ test("parse let expression", () => {
             text: "abc",
             span: { start: 8, end: 11 },
           },
-          numberLiteralExpression(123)
+          numberLiteralExpression(123),
         ),
       ],
       {
         type: TokenType.EndOfFile,
         text: "\0",
         span: { start: 17, end: 17 },
-      }
-    )
+      },
+    ),
   );
 });
 
@@ -197,8 +197,8 @@ test("parse assignment expression", () => {
   expect(ast).toStrictEqual(
     assignmentExpression(
       { type: TokenType.Identifier, text: "abc", span: { start: 0, end: 3 } },
-      numberLiteralExpression(123)
-    )
+      numberLiteralExpression(123),
+    ),
   );
 });
 
@@ -221,9 +221,9 @@ test("parse if expression", () => {
       ifExpression(
         booleanLiteralExpression(true),
         { statements: [expressionStatement(numberLiteralExpression(2))] },
-        blockExpression([expressionStatement(numberLiteralExpression(3))])
-      )
-    )
+        blockExpression([expressionStatement(numberLiteralExpression(3))]),
+      ),
+    ),
   );
 });
 
@@ -235,8 +235,8 @@ test("parse if expression without else", () => {
     ifExpression(
       booleanLiteralExpression(true),
       { statements: [expressionStatement(numberLiteralExpression(1))] },
-      undefined
-    )
+      undefined,
+    ),
   );
 });
 
@@ -248,8 +248,8 @@ test("parse if expression with only else", () => {
     ifExpression(
       booleanLiteralExpression(false),
       { statements: [expressionStatement(numberLiteralExpression(1))] },
-      blockExpression([expressionStatement(numberLiteralExpression(2))])
-    )
+      blockExpression([expressionStatement(numberLiteralExpression(2))]),
+    ),
   );
 });
 

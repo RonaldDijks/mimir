@@ -1,13 +1,11 @@
-import { useMemo, useState } from "react";
-
-import { Card, CardHeader, CardTitle } from "./Card";
-
-import { tokenize } from "@mimir/core/src/analysis/tokenizer";
-import { parse } from "@mimir/core/src/analysis/parser";
 import { json } from "@codemirror/lang-json";
-
+import type { SourceFile } from "@mimir/core/src/analysis/ast";
+import { parse } from "@mimir/core/src/analysis/parser";
+import type { Token } from "@mimir/core/src/analysis/token";
+import { tokenize } from "@mimir/core/src/analysis/tokenizer";
+import { useMemo, useState } from "react";
+import { Card, CardHeader, CardTitle } from "./Card";
 import { CodeEditor } from "./ui/code-editor";
-import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import {
   Select,
   SelectContent,
@@ -15,9 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { cn } from "@/lib/utils";
-import { Token } from "@mimir/core/src/analysis/token";
-import { SourceFile } from "@mimir/core/src/analysis/ast";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 
 export interface ViewerProps {
   value: string;

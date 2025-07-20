@@ -1,16 +1,16 @@
-import { test, expect } from "bun:test";
-import { tokenize } from "../analysis/tokenizer";
+import { expect, test } from "bun:test";
 import { parse } from "../analysis/parser";
+import { tokenize } from "../analysis/tokenizer";
+import { dedent } from "../util/dedent";
 import { Evaluator } from "./evaluator";
 import {
   booleanValue,
   NIL,
   numberValue,
   stringValue,
-  ValueType,
   type Value,
+  ValueType,
 } from "./value";
-import { dedent } from "../util/dedent";
 
 function evaluate(tokens: string, evaluator?: Evaluator) {
   evaluator ??= new Evaluator();
@@ -159,21 +159,21 @@ test("evaluate if expression without else returns NIL", () => {
 
 test("evaluator error for non-boolean condition", () => {
   expect(() => evaluate("if 1 { 2 }")).toThrow(
-    "If condition must be a boolean value, got number. Consider using comparison operators (==, !=, <, >, etc.) to create a boolean condition."
+    "If condition must be a boolean value, got number. Consider using comparison operators (==, !=, <, >, etc.) to create a boolean condition.",
   );
 });
 
 test("evaluator error for string condition", () => {
   expect(() => evaluate('if "hello" { 2 }')).toThrow(
-    "If condition must be a boolean value, got string. Consider using comparison operators (==, !=, <, >, etc.) to create a boolean condition."
+    "If condition must be a boolean value, got string. Consider using comparison operators (==, !=, <, >, etc.) to create a boolean condition.",
   );
 });
 
 test("evaluate if expression with empty blocks", () => {
   // This should work since we're creating the AST directly in the evaluator test
   // The parser prevents empty blocks, but the evaluator should handle them gracefully
-  const evaluator = new Evaluator();
-  const ast = parse(tokenize("true")); // Create a simple boolean expression first
+  const _evaluator = new Evaluator();
+  const _ast = parse(tokenize("true")); // Create a simple boolean expression first
   // We can't easily test empty blocks through the parser due to our validation,
   // but the evaluator should handle them gracefully if they occur
 });

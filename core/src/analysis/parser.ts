@@ -1,27 +1,27 @@
 import {
   assignmentExpression,
+  type Block,
+  type BlockExpression,
   binaryExpression,
   booleanLiteralExpression,
-  expressionStatement,
+  type Expression,
+  type ExpressionStatement,
   ExpressionType,
+  expressionStatement,
+  type IfExpression,
   identifierExpression,
   ifExpression,
+  type LetStatement,
   letStatement,
   numberLiteralExpression,
   parenthesizedExpression,
+  type SourceFile,
+  type Statement,
   sourceFile,
   stringLiteralExpression,
   unaryExpression,
-  type Block,
-  type BlockExpression,
-  type Expression,
-  type ExpressionStatement,
-  type IfExpression,
-  type LetStatement,
-  type SourceFile,
-  type Statement,
 } from "./ast";
-import { TokenType, type Token, type NumberToken } from "./token";
+import { type NumberToken, type Token, TokenType } from "./token";
 
 enum Precedence {
   Lowest = 0,
@@ -47,8 +47,10 @@ export class Parser {
   private peek(offset: number = 0): Token {
     const index = this.index + offset;
     if (index >= this.tokens.length) {
+      // biome-ignore lint/style/noNonNullAssertion: last token
       return this.tokens[this.tokens.length - 1]!;
     }
+    // biome-ignore lint/style/noNonNullAssertion: current token
     return this.tokens[index]!;
   }
 
@@ -61,12 +63,12 @@ export class Parser {
   }
 
   private expectToken<Type extends TokenType>(
-    expected: Type
+    expected: Type,
   ): Extract<Token, { type: Type }> {
     const token = this.current_token();
     if (token.type !== expected) {
       throw new Error(
-        `Expected ${expected}, got ${token.type} at position ${token.span.start}`
+        `Expected ${expected}, got ${token.type} at position ${token.span.start}`,
       );
     }
     return this.next_token() as Extract<Token, { type: Type }>;
@@ -194,7 +196,7 @@ export class Parser {
     const token = this.next_token();
     if (token.type !== TokenType.True && token.type !== TokenType.False) {
       throw new Error(
-        `Expected boolean literal, got ${token.type} at position ${token.span.start}`
+        `Expected boolean literal, got ${token.type} at position ${token.span.start}`,
       );
     }
     return booleanLiteralExpression(token.type === TokenType.True);
@@ -234,12 +236,12 @@ export class Parser {
   }
 
   private block(): Block {
-    const openBrace = this.expectToken(TokenType.BraceOpen);
+    const _openBrace = this.expectToken(TokenType.BraceOpen);
     const statements: Statement[] = [];
     while (this.peek().type !== TokenType.BraceClose) {
       statements.push(this.statement());
     }
-    const closeBrace = this.expectToken(TokenType.BraceClose);
+    const _closeBrace = this.expectToken(TokenType.BraceClose);
     return { statements };
   }
 }

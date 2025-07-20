@@ -1,10 +1,10 @@
-import { cn } from "@/lib/utils";
 import { githubDark, githubLight } from "@uiw/codemirror-theme-github";
 import ReactCodeMirror, {
   EditorView,
-  ReactCodeMirrorProps,
+  type ReactCodeMirrorProps,
 } from "@uiw/react-codemirror";
 import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
 
 const myTheme = EditorView.theme({
   "&": {
