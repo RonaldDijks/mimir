@@ -8,18 +8,13 @@ import {
   NIL,
   numberValue,
   stringValue,
-  type Value,
   ValueType,
 } from "./value";
 
 function evaluate(tokens: string, evaluator?: Evaluator) {
   evaluator ??= new Evaluator();
   const ast = parse(tokenize(tokens));
-  let result: Value = NIL;
-  for (const statement of ast.statements) {
-    result = evaluator.evaluate(statement);
-  }
-  return result;
+  return evaluator.evaluate(ast);
 }
 
 test("evaluate simple expression", () => {
