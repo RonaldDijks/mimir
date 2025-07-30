@@ -39,7 +39,9 @@ export const Viewer = ({ mode, setMode, compilationResult }: ViewerProps) => {
       return compilationResult.output ?? "";
     }
     if (mode === ViewerMode.Tokens) {
-      return JSON.stringify(compilationResult.tokens, null, 2);
+      return compilationResult.tokens
+        ?.map((token) => `${token.type} ${token.text}`)
+        .join("\n");
     }
     return JSON.stringify(compilationResult.ast, null, 2);
   }, [compilationResult, mode]);

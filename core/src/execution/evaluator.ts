@@ -28,75 +28,6 @@ import {
 	type Value,
 } from "./value";
 
-function performNumericOperation(
-	left: number,
-	right: number,
-	operator: TokenType,
-	span: Span,
-): Value {
-	switch (operator) {
-		case TokenType.Plus:
-			return numberValue(left + right);
-		case TokenType.Minus:
-			return numberValue(left - right);
-		case TokenType.Asterisk:
-			return numberValue(left * right);
-		case TokenType.Slash:
-			if (right === 0) {
-				throw new Diagnostic("Division by zero", span);
-			}
-			return numberValue(left / right);
-		case TokenType.EqualsEquals:
-			return booleanValue(left === right);
-		case TokenType.BangEquals:
-			return booleanValue(left !== right);
-		case TokenType.LessThan:
-			return booleanValue(left < right);
-		case TokenType.LessThanEquals:
-			return booleanValue(left <= right);
-		case TokenType.GreaterThan:
-			return booleanValue(left > right);
-		case TokenType.GreaterThanEquals:
-			return booleanValue(left >= right);
-		default:
-			throw new Diagnostic(`Unsupported numeric operator: ${operator}`, span);
-	}
-}
-
-function performBooleanOperation(
-	left: boolean,
-	right: boolean,
-	operator: TokenType,
-	span: Span,
-): Value {
-	switch (operator) {
-		case TokenType.AmpersandAmpersand:
-			return booleanValue(left && right);
-		case TokenType.PipePipe:
-			return booleanValue(left || right);
-		case TokenType.EqualsEquals:
-			return booleanValue(left === right);
-		case TokenType.BangEquals:
-			return booleanValue(left !== right);
-		default:
-			throw new Diagnostic(`Unsupported boolean operator: ${operator}`, span);
-	}
-}
-
-function performStringOperation(
-	left: string,
-	right: string,
-	operator: TokenType,
-	span: Span,
-): Value {
-	switch (operator) {
-		case TokenType.PlusPlus:
-			return stringValue(left + right);
-		default:
-			throw new Diagnostic(`Unsupported string operator: ${operator}`, span);
-	}
-}
-
 class Environment {
 	private values: Map<string, Value> = new Map();
 	private mutability: Map<string, boolean> = new Map();
@@ -227,30 +158,66 @@ export class Evaluator {
 		const right = this.evaluateExpression(expression.right);
 
 		if (isNumberValue(left) && isNumberValue(right)) {
-			return performNumericOperation(
-				left.value,
-				right.value,
-				expression.operator.type,
-				expression.span,
-			);
+			switch (expression.operator.type) {
+				case TokenType.Plus:
+					return numberValue(left.value + right.value);
+				case TokenType.Minus:
+					return numberValue(left.value - right.value);
+				case TokenType.Asterisk:
+					return numberValue(left.value * right.value);
+				case TokenType.Slash:
+					if (right.value === 0) {
+						throw new Diagnostic("Division by zero", expression.operator.span);
+					}
+					return numberValue(left.value / right.value);
+				case TokenType.EqualsEquals:
+					return booleanValue(left.value === right.value);
+				case TokenType.BangEquals:
+					return booleanValue(left.value !== right.value);
+				case TokenType.LessThan:
+					return booleanValue(left.value < right.value);
+				case TokenType.LessThanEquals:
+					return booleanValue(left.value <= right.value);
+				case TokenType.GreaterThan:
+					return booleanValue(left.value > right.value);
+				case TokenType.GreaterThanEquals:
+					return booleanValue(left.value >= right.value);
+				default:
+					throw new Diagnostic(
+						`no implementation for \`${left.type} ${expression.operator.text} ${right.type}\``,
+						expression.operator.span,
+					);
+			}
 		}
 
 		if (isBooleanValue(left) && isBooleanValue(right)) {
-			return performBooleanOperation(
-				left.value,
-				right.value,
-				expression.operator.type,
-				expression.span,
-			);
+			switch (expression.operator.type) {
+				case TokenType.AmpersandAmpersand:
+					return booleanValue(left.value && right.value);
+				case TokenType.PipePipe:
+					return booleanValue(left.value || right.value);
+				case TokenType.EqualsEquals:
+					return booleanValue(left.value === right.value);
+				case TokenType.BangEquals:
+					return booleanValue(left.value !== right.value);
+				default:
+					throw new Diagnostic(
+						`Unsupported boolean operator: ${expression.operator.type}`,
+						expression.operator.span,
+					);
+			}
 		}
 
 		if (isStringValue(left) && isStringValue(right)) {
-			return performStringOperation(
-				left.value,
-				right.value,
-				expression.operator.type,
-				expression.span,
-			);
+			switch (expression.operator.type) {
+				case TokenType.PlusPlus:
+					return stringValue(left.value + right.value);
+				default:
+					throw new Diagnostic(
+						`Unsupported string operator: ${expression.operator.type}`,
+						expression.operator.span,
+					);
+			}
 		}
 
 		throw new Diagnostic(
