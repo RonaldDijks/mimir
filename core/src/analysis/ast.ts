@@ -1,3 +1,4 @@
+import type { Span } from "../core/span";
 import type { EndOfFileToken, IdentifierToken, Token } from "./token";
 
 export interface SourceFile {
@@ -74,26 +75,30 @@ export interface AssignmentExpression {
   type: ExpressionType.AssignmentExpression;
   left: IdentifierToken;
   right: Expression;
+  span: Span;
 }
 
 export function assignmentExpression(
   left: IdentifierToken,
   right: Expression,
+  span: Span,
 ): AssignmentExpression {
-  return { type: ExpressionType.AssignmentExpression, left, right };
+  return { type: ExpressionType.AssignmentExpression, left, right, span };
 }
 
 export interface UnaryExpression {
   type: ExpressionType.UnaryExpression;
   operator: Token;
   right: Expression;
+  span: Span;
 }
 
 export function unaryExpression(
   operator: Token,
   right: Expression,
+  span: Span,
 ): UnaryExpression {
-  return { type: ExpressionType.UnaryExpression, operator, right };
+  return { type: ExpressionType.UnaryExpression, operator, right, span };
 }
 
 export interface BinaryExpression {
@@ -101,45 +106,55 @@ export interface BinaryExpression {
   left: Expression;
   right: Expression;
   operator: Token;
+  span: Span;
 }
 
 export function binaryExpression(
   left: Expression,
   right: Expression,
   operator: Token,
+  span: Span,
 ): BinaryExpression {
-  return { type: ExpressionType.BinaryExpression, left, right, operator };
+  return { type: ExpressionType.BinaryExpression, left, right, operator, span };
 }
 
 export interface IdentifierExpression {
   type: ExpressionType.IdentifierExpression;
   name: IdentifierToken;
+  span: Span;
 }
 
 export function identifierExpression(
   name: IdentifierToken,
+  span: Span,
 ): IdentifierExpression {
-  return { type: ExpressionType.IdentifierExpression, name };
+  return { type: ExpressionType.IdentifierExpression, name, span };
 }
 
 export interface ParenthesizedExpression {
   type: ExpressionType.ParenthesizedExpression;
   expression: Expression;
+  span: Span;
 }
 
 export function parenthesizedExpression(
   expression: Expression,
+  span: Span,
 ): ParenthesizedExpression {
-  return { type: ExpressionType.ParenthesizedExpression, expression };
+  return { type: ExpressionType.ParenthesizedExpression, expression, span };
 }
 
 export interface BlockExpression {
   type: ExpressionType.BlockExpression;
   block: Block;
+  span: Span;
 }
 
-export function blockExpression(statements: Statement[]): BlockExpression {
-  return { type: ExpressionType.BlockExpression, block: { statements } };
+export function blockExpression(
+  statements: Statement[],
+  span: Span,
+): BlockExpression {
+  return { type: ExpressionType.BlockExpression, block: { statements }, span };
 }
 
 export interface Block {
@@ -150,51 +165,60 @@ export interface IfExpression {
   type: ExpressionType.IfExpression;
   condition: Expression;
   then_branch: Block;
-  else_branch?: IfExpression | BlockExpression;
+  else_branch?: IfExpression | BlockExpression | null;
+  span: Span;
 }
 
 export function ifExpression(
   condition: Expression,
   then_branch: Block,
-  else_branch?: IfExpression | BlockExpression,
+  else_branch: IfExpression | BlockExpression | null,
+  span: Span,
 ): IfExpression {
   return {
     type: ExpressionType.IfExpression,
     condition,
     then_branch,
     else_branch,
+    span,
   };
 }
 
 export interface BooleanLiteralExpression {
   type: ExpressionType.BooleanLiteralExpression;
   value: boolean;
+  span: Span;
 }
 
 export function booleanLiteralExpression(
   value: boolean,
+  span: Span,
 ): BooleanLiteralExpression {
-  return { type: ExpressionType.BooleanLiteralExpression, value };
+  return { type: ExpressionType.BooleanLiteralExpression, value, span };
 }
 
 export interface NumberLiteralExpression {
   type: ExpressionType.NumberLiteralExpression;
   value: number;
+  span: Span;
 }
 
 export function numberLiteralExpression(
   value: number,
+  span: Span,
 ): NumberLiteralExpression {
-  return { type: ExpressionType.NumberLiteralExpression, value };
+  return { type: ExpressionType.NumberLiteralExpression, value, span };
 }
 
 export interface StringLiteralExpression {
   type: ExpressionType.StringLiteralExpression;
   value: string;
+  span: Span;
 }
 
 export function stringLiteralExpression(
   value: string,
+  span: Span,
 ): StringLiteralExpression {
-  return { type: ExpressionType.StringLiteralExpression, value };
+  return { type: ExpressionType.StringLiteralExpression, value, span };
 }

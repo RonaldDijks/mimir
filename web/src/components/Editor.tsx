@@ -1,4 +1,8 @@
 import { rust } from "@codemirror/lang-rust";
+import { type LintSource, linter } from "@codemirror/lint";
+import { Diagnostic } from "@mimir/core/src/analysis/diagnostic";
+import { parse } from "@mimir/core/src/analysis/parser";
+import { tokenize } from "@mimir/core/src/analysis/tokenizer";
 import { PlayIcon } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "./Card";
 import { Button } from "./ui/button";
@@ -17,6 +21,25 @@ export const Editor = ({
   onRun,
   runDisabled,
 }: EditorProps) => {
+  const lint: LintSource = (view) => {
+    try {
+      parse(tokenize(view.state.doc.toString()));
+    } catch (error) {
+      if (error instanceof Diagnostic) {
+        return [
+          {
+            from: error.span.start,
+            to: error.span.end,
+            severity: "error",
+            message: error.message,
+          },
+        ];
+      }
+    }
+
+    return [];
+  };
+
   return (
     <Card className="h-full">
       <CardHeader className="justify-between">
@@ -31,7 +54,11 @@ export const Editor = ({
           Run
         </Button>
       </CardHeader>
-      <CodeEditor value={value} onChange={onChange} extensions={[rust()]} />
+      <CodeEditor
+        value={value}
+        onChange={onChange}
+        extensions={[rust(), linter(lint)]}
+      />
     </Card>
   );
 };

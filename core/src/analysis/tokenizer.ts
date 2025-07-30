@@ -1,4 +1,5 @@
-import { span } from "../core/span";
+import { createSpan } from "../core/span";
+import { Diagnostic } from "./diagnostic";
 import { keyword, type Token, TokenType } from "./token";
 
 export function tokenize(input: string): Token[] {
@@ -141,7 +142,7 @@ export class Tokenizer {
         return {
           type: TokenType.EndOfFile,
           text: "\0",
-          span: span(this.current, this.current),
+          span: createSpan(this.current, this.current),
         };
 
       default:
@@ -165,7 +166,7 @@ export class Tokenizer {
     return {
       type,
       text: this.input.slice(this.start, this.current),
-      span: span(this.start, this.current),
+      span: createSpan(this.start, this.current),
     };
   }
 
@@ -184,7 +185,7 @@ export class Tokenizer {
     return {
       type: TokenType.Number,
       text: this.input.slice(start, this.current),
-      span: span(start, this.current),
+      span: createSpan(start, this.current),
       value,
     };
   }
@@ -195,7 +196,8 @@ export class Tokenizer {
     while (true) {
       const peek = this.peek();
       if (peek === "\0") {
-        throw new Error("Unterminated string literal");
+        const stringSpan = createSpan(start, this.current);
+        throw new Diagnostic("Unterminated string literal", stringSpan);
       }
       if (peek === '"') {
         break;
@@ -207,7 +209,7 @@ export class Tokenizer {
     return {
       type: TokenType.StringLiteral,
       text: this.input.slice(start, this.current),
-      span: span(start, this.current),
+      span: createSpan(start, this.current),
       value,
     };
   }
@@ -221,7 +223,7 @@ export class Tokenizer {
     return {
       type,
       text: this.input.slice(start, this.current),
-      span: span(start, this.current),
+      span: createSpan(start, this.current),
     };
   }
 

@@ -3,7 +3,7 @@ export interface Span {
   end: number;
 }
 
-export function span(start: number, end: number): Span {
+export function createSpan(start: number, end: number): Span {
   return { start, end };
 }
 
@@ -14,4 +14,4 @@ export function mergeSpan(a: Span, b: Span): Span {
   };
 }
 
-export const ZERO: Span = span(0, 0);
+export const ZERO: Span = createSpan(0, 0);
