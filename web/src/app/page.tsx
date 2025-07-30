@@ -60,8 +60,16 @@ export default function Home() {
     if (!compilationResult.ast) {
       return;
     }
-    const result = evaluator.evaluate(compilationResult.ast);
-    setOutput(valueToString(result));
+    try {
+      const result = evaluator.evaluate(compilationResult.ast);
+      setOutput(valueToString(result));
+    } catch (error) {
+      if (error instanceof Diagnostic) {
+        setOutput(`[${error.span.start}, ${error.span.end}] ${error.message}`);
+      } else {
+        console.log(error);
+      }
+    }
   }, [compilationResult]);
 
   return (
