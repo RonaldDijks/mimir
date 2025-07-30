@@ -1,8 +1,6 @@
 import { rust } from "@codemirror/lang-rust";
 import { type LintSource, linter } from "@codemirror/lint";
-import { Diagnostic } from "@mimir/core/src/analysis/diagnostic";
-import { parse } from "@mimir/core/src/analysis/parser";
-import { tokenize } from "@mimir/core/src/analysis/tokenizer";
+import type { Diagnostic } from "@mimir/core/src/analysis/diagnostic";
 import { PlayIcon } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "./Card";
 import { Button } from "./ui/button";
@@ -13,6 +11,7 @@ export interface EditorProps {
   onChange: (value: string) => void;
   onRun: () => void;
   runDisabled: boolean;
+  diagnostics: Diagnostic[] | null;
 }
 
 export const Editor = ({
@@ -20,24 +19,17 @@ export const Editor = ({
   onChange,
   onRun,
   runDisabled,
+  diagnostics,
 }: EditorProps) => {
-  const lint: LintSource = (view) => {
-    try {
-      parse(tokenize(view.state.doc.toString()));
-    } catch (error) {
-      if (error instanceof Diagnostic) {
-        return [
-          {
-            from: error.span.start,
-            to: error.span.end,
-            severity: "error",
-            message: error.message,
-          },
-        ];
-      }
-    }
-
-    return [];
+  const lint: LintSource = () => {
+    return (
+      diagnostics?.map((diagnostic) => ({
+        from: diagnostic.span.start,
+        to: diagnostic.span.end,
+        severity: "error",
+        message: diagnostic.message,
+      })) ?? []
+    );
   };
 
   return (

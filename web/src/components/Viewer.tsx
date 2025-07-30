@@ -1,5 +1,6 @@
 import { json } from "@codemirror/lang-json";
 import type { SourceFile } from "@mimir/core/src/analysis/ast";
+import type { Diagnostic } from "@mimir/core/src/analysis/diagnostic";
 import type { Token } from "@mimir/core/src/analysis/token";
 import { useMemo } from "react";
 import { Card, CardHeader, CardTitle } from "./Card";
@@ -26,6 +27,7 @@ export enum ViewerMode {
 }
 
 export interface ViewerCompilationResult {
+  diagnostic: Diagnostic | null;
   tokens: Token[] | null;
   ast: SourceFile | null;
   output: string | null;

@@ -1,6 +1,7 @@
 "use client";
 
 import type { SourceFile } from "@mimir/core/src/analysis/ast";
+import { Diagnostic } from "@mimir/core/src/analysis/diagnostic";
 import { parse } from "@mimir/core/src/analysis/parser";
 import type { Token } from "@mimir/core/src/analysis/token";
 import { tokenize } from "@mimir/core/src/analysis/tokenizer";
@@ -32,17 +33,25 @@ export default function Home() {
     try {
       tokens = tokenize(sourceCode);
     } catch (error) {
-      console.log(error);
-      return { tokens: null, ast: null, output: null };
+      if (error instanceof Diagnostic) {
+        return { tokens: null, ast: null, output: null, diagnostic: error };
+      } else {
+        console.log(error);
+        return { tokens: null, ast: null, output: null, diagnostic: null };
+      }
     }
     let ast: SourceFile | null = null;
     try {
       ast = parse(tokens);
     } catch (error) {
-      console.log(error);
-      return { tokens: null, ast: null, output: null };
+      if (error instanceof Diagnostic) {
+        return { tokens: null, ast: null, output: null, diagnostic: error };
+      } else {
+        console.log(error);
+        return { tokens: null, ast: null, output: null, diagnostic: null };
+      }
     }
-    return { tokens, ast, output: null };
+    return { tokens, ast, output: null, diagnostic: null };
   }, [sourceCode]);
 
   const onRun = useCallback(() => {
@@ -65,6 +74,11 @@ export default function Home() {
             onChange={setSourceCode}
             onRun={onRun}
             runDisabled={!compilationResult.ast}
+            diagnostics={
+              compilationResult.diagnostic
+                ? [compilationResult.diagnostic]
+                : null
+            }
           />
         </div>
         <div className="overflow-hidden">
