@@ -3,8 +3,5 @@
   "workspaces": [
     "core",
     "web"
-  ],
-  "devDependencies": {
-    "@biomejs/biome": "2.1.2"
-  }
+  ]
 }
