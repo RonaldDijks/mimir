@@ -5,6 +5,14 @@ import { PlayIcon } from "lucide-react";
 import { Card, CardHeader, CardTitle } from "./Card";
 import { Button } from "./ui/button";
 import { CodeEditor } from "./ui/code-editor";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { examples } from "@/lib/examples";
 
 export interface EditorProps {
   value: string;
@@ -12,6 +20,7 @@ export interface EditorProps {
   onRun: () => void;
   runDisabled: boolean;
   diagnostics: Diagnostic[] | null;
+  onExampleSelect?: (exampleCode: string) => void;
 }
 
 export const Editor = ({
@@ -20,6 +29,7 @@ export const Editor = ({
   onRun,
   runDisabled,
   diagnostics,
+  onExampleSelect,
 }: EditorProps) => {
   const lint: LintSource = () => {
     return (
@@ -32,19 +42,40 @@ export const Editor = ({
     );
   };
 
+  const handleExampleChange = (exampleId: string) => {
+    const example = examples.find((e) => e.id === exampleId);
+    if (example && onExampleSelect) {
+      onExampleSelect(example.code);
+    }
+  };
+
   return (
     <Card className="h-full">
       <CardHeader className="justify-between">
         <CardTitle>Editor</CardTitle>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={onRun}
-          disabled={runDisabled}
-        >
-          <PlayIcon className="h-4 w-4" />
-          Run
-        </Button>
+        <div className="flex gap-2 items-center">
+          <Select onValueChange={handleExampleChange}>
+            <SelectTrigger size="sm" className="w-[180px]">
+              <SelectValue placeholder="Load example..." />
+            </SelectTrigger>
+            <SelectContent>
+              {examples.map((example) => (
+                <SelectItem key={example.id} value={example.id}>
+                  {example.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={onRun}
+            disabled={runDisabled}
+          >
+            <PlayIcon className="h-4 w-4" />
+            Run
+          </Button>
+        </div>
       </CardHeader>
       <CodeEditor
         value={value}

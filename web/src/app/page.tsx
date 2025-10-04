@@ -72,6 +72,10 @@ export default function Home() {
     }
   }, [compilationResult]);
 
+  const handleExampleSelect = useCallback((code: string) => {
+    setSourceCode(code);
+  }, []);
+
   return (
     <div className="h-screen max-h-screen flex flex-col">
       <Header />
@@ -87,6 +91,7 @@ export default function Home() {
                 ? [compilationResult.diagnostic]
                 : null
             }
+            onExampleSelect={handleExampleSelect}
           />
         </div>
         <div className="overflow-hidden">
