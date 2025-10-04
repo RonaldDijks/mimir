@@ -146,7 +146,7 @@ export class Tokenizer {
         };
 
       default:
-        if (this.peek().match(/[a-z]/i)) {
+        if (this.peek().match(/[a-z_]/i)) {
           return this.keyword();
         } else {
           type = TokenType.Unknown;
@@ -216,7 +216,7 @@ export class Tokenizer {
 
   private keyword(): Token {
     const start = this.current;
-    while (this.peek().match(/[a-z]/i)) {
+    while (this.peek().match(/[a-z0-9_]/i)) {
       this.current++;
     }
     const type = keyword(this.input.slice(start, this.current));
